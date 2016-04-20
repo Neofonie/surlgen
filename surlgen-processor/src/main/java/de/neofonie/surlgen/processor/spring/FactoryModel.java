@@ -2,8 +2,9 @@ package de.neofonie.surlgen.processor.spring;
 
 import com.helger.jcodemodel.*;
 import com.helger.jcodemodel.writer.FileCodeWriter;
+import de.neofonie.surlgen.processor.core.ClassWriter;
 import de.neofonie.surlgen.processor.core.Options;
-import de.neofonie.surlgen.processor.core.Params;
+import de.neofonie.surlgen.processor.core.UrlMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,19 +19,20 @@ public class FactoryModel {
 
     private static final Map<String, FactoryModel> map = new HashMap<>();
     private final String name;
-    private final JCodeModel codeModel;
+    private final ClassWriter classWriter;
     private final JDefinedClass definedClass;
     private final JMethod baseMvcUriComponentsMethod;
 
-    public static FactoryModel create(String name, Options options) {
-        return map.computeIfAbsent(name, key -> new FactoryModel(key, options));
+    public static FactoryModel create(String name, Options options, ClassWriter classWriter) {
+        return map.computeIfAbsent(name, key -> new FactoryModel(key, options, classWriter));
     }
 
-    private FactoryModel(String name, Options options) {
+    private FactoryModel(String name, Options options, ClassWriter classWriter) {
         this.name = name;
-        codeModel = new JCodeModel();
+        this.classWriter = classWriter;
+//        codeModel = new JCodeModel();
         try {
-            definedClass = codeModel._class(name + options.getValue(Options.OptionEnum.ServiceClassName));
+            definedClass = classWriter.createClass(name + options.getValue(Options.OptionEnum.ServiceClassName));
             definedClass.annotate(Service.class);
             definedClass.javadoc().add("Generated with " + UrlFactoryServiceGenerator.class.getCanonicalName());
             baseMvcUriComponentsMethod = appendBaseMvcUriComponentsBuilderMethod();
@@ -46,7 +48,7 @@ public class FactoryModel {
     }
 
     private void writeSourceCode(File outputDir) throws JClassAlreadyExistsException, IOException {
-        codeModel.build(new FileCodeWriter(outputDir));
+        classWriter.build(new FileCodeWriter(outputDir));
     }
 
     private JMethod appendBaseMvcUriComponentsBuilderMethod() {
@@ -56,24 +58,23 @@ public class FactoryModel {
         return getBaseMvcUriComponentsBuilder;
     }
 
-    void appendMethod(ExecutableElement method) {
-        String methodName = method.getSimpleName().toString();
-        Params parameters = new Params(method.getParameters());
+    void appendMethod(ExecutableElement method, ClassWriter classWriter) {
+        UrlMethod parameters = new UrlMethod(method, classWriter);
 
-        JMethod mvcUriComponentsBuilderMethod = appendMvcUriComponentsBuilderMethod(methodName, parameters);
-        appendUriStringMethod(methodName, parameters, mvcUriComponentsBuilderMethod);
+        JMethod mvcUriComponentsBuilderMethod = appendMvcUriComponentsBuilderMethod(parameters.getMethodName(), parameters);
+        appendUriStringMethod(parameters.getMethodName(), parameters, mvcUriComponentsBuilderMethod);
     }
 
-    private void appendUriStringMethod(String methodName, Params parameters, JMethod mvcUriComponentsBuilderMethod) {
+    private void appendUriStringMethod(String methodName, UrlMethod parameters, JMethod mvcUriComponentsBuilderMethod) {
         JMethod uriStringMethod = definedClass.method(JMod.PUBLIC, String.class, methodName + "UriString");
 //        checkSupport(parameters, uriStringMethod);
 
         JInvocation invocation = JExpr.invoke(mvcUriComponentsBuilderMethod);
         uriStringMethod.body()._return(invocation.invoke("toUriString"));
-        parameters.appendParams(codeModel, uriStringMethod, invocation);
+        parameters.appendParams(uriStringMethod, invocation);
     }
 
-    private JMethod appendMvcUriComponentsBuilderMethod(String methodName, Params parameters) {
+    private JMethod appendMvcUriComponentsBuilderMethod(String methodName, UrlMethod parameters) {
         JMethod urlMethod = definedClass.method(JMod.PUBLIC, UriComponentsBuilder.class, methodName);
 //        checkSupport(parameters, urlMethod);
         JBlock body = urlMethod.body();
@@ -92,13 +93,13 @@ public class FactoryModel {
 //        }
 //    }
 
-    private JInvocation createMvcUriComponentsBuilderInvocation(Params parameters, String methodName, JMethod urlMethod) {
-        AbstractJClass mvcUriComponentsBuilder = codeModel.ref(MvcUriComponentsBuilder.class);
+    private JInvocation createMvcUriComponentsBuilderInvocation(UrlMethod parameters, String methodName, JMethod urlMethod) {
+        AbstractJClass mvcUriComponentsBuilder = classWriter.ref(MvcUriComponentsBuilder.class);
         JInvocation fromMethodName = mvcUriComponentsBuilder.staticInvoke("fromMethodName");
         fromMethodName.arg(JExpr.invoke(baseMvcUriComponentsMethod));
-        fromMethodName.arg(codeModel.ref(name).dotclass());
+        fromMethodName.arg(classWriter.ref(name).dotclass());
         fromMethodName.arg(methodName);
-        fromMethodName.arg(parameters.createVarArgArray(codeModel, urlMethod));
+        fromMethodName.arg(parameters.createVarArgArray(urlMethod));
         return fromMethodName;
     }
 }

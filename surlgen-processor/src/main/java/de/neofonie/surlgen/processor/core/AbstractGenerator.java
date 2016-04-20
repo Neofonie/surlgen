@@ -1,5 +1,7 @@
 package de.neofonie.surlgen.processor.core;
 
+import com.helger.jcodemodel.JClassAlreadyExistsException;
+import com.helger.jcodemodel.JCodeModel;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -21,6 +23,8 @@ public abstract class AbstractGenerator extends AbstractProcessor {
 
     private final Logger log = Logger.getLogger(getClass().getCanonicalName());
     private Options options;
+    private static File outputDir;
+    private static ClassWriter classWriter;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -45,6 +49,9 @@ public abstract class AbstractGenerator extends AbstractProcessor {
         if (roundEnv.processingOver()) {
             return true;
         }
+        if (classWriter == null) {
+            classWriter = new ClassWriter(new JCodeModel());
+        }
 
         for (Element elem : roundEnv.getElementsAnnotatedWith(RequestMapping.class)) {
             if (log.isLoggable(Level.FINE)) {
@@ -54,21 +61,30 @@ public abstract class AbstractGenerator extends AbstractProcessor {
             ElementKind elementKind = elem.getKind();
 
             if (elementKind == ElementKind.METHOD) {
-                handleElement(elem);
+                handleElement(elem, classWriter);
             }
         }
 
         finished();
-        return true; // no further processing of this annotation type
+        return false; // no further processing of this annotation type
     }
 
-    protected abstract void finished();
+    private void finished() {
+        try {
+            classWriter.writeSourceCodes(getOutputDir());
+        } catch (IOException | JClassAlreadyExistsException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 
-    protected abstract void handleElement(Element elem);
+    protected abstract void handleElement(Element elem, ClassWriter classWriter);
 
     protected File getOutputDir() throws IOException {
+        if (outputDir != null) {
+            return outputDir;
+        }
         URI tempFile = processingEnv.getFiler().createSourceFile("a").toUri();
-        File outputDir = new File(tempFile).getParentFile();
+        outputDir = new File(tempFile).getParentFile();
         if (!outputDir.exists() && !outputDir.mkdirs()) {
             throw new IOException("Couldnt create " + outputDir.getAbsolutePath());
         }

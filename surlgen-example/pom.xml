@@ -26,7 +26,11 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/generated-sources/surlgen</outputDirectory>
-                            <processor>de.neofonie.surlgen.processor.spring.UrlFactoryServiceGenerator</processor>
+                            <processors>
+                                <processor>de.neofonie.surlgen.processor.spring.UrlFactoryServiceGenerator</processor>
+                                <processor>de.neofonie.surlgen.processor.spring.UrlFunctionGenerator</processor>
+                            </processors>
+
                             <options>
                                 <!--<service.class.name>Foobar</service.class.name>-->
                                 <!--<service.addUriComponentsBuilder>true</service.addUriComponentsBuilder>-->
@@ -70,12 +74,6 @@
             <version>1.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>

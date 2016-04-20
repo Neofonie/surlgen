@@ -24,6 +24,7 @@ public class Options {
 
     public static enum OptionEnum {
         ServiceClassName("service.class.name", "UrlFactoryGenerated"),
+        FunctionClassName("function.class.name", "FunctionGenerated"),
         ServiceAddUriComponentsBuilder("service.addUriComponentsBuilder", "false");
 
         private final String name;

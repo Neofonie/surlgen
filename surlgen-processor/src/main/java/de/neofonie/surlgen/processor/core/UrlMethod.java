@@ -2,40 +2,49 @@ package de.neofonie.surlgen.processor.core;
 
 import com.helger.jcodemodel.*;
 
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import java.util.List;
 
-public class Params {
+public class UrlMethod {
 
     private final List<? extends VariableElement> parameters;
+    private final ExecutableElement method;
+    private final ClassWriter classWriter;
 
-    public Params(List<? extends VariableElement> parameters) {
-        this.parameters = parameters;
+    public UrlMethod(ExecutableElement method, ClassWriter classWriter) {
+        this.method = method;
+        this.classWriter = classWriter;
+        this.parameters = method.getParameters();
     }
 
-    public void appendParams(JCodeModel codeModel, JMethod uriStringMethod, JInvocation invocation) {
+    public String getMethodName() {
+        return method.getSimpleName().toString();
+    }
+
+    public void appendParams(JMethod uriStringMethod, JInvocation invocation) {
         for (VariableElement variableElement : parameters) {
             TypeEnum typeEnum = TypeEnum.getType(variableElement);
             if (typeEnum.isRelevantForUrl()) {
-                AbstractJType type = codeModel.parseType(variableElement.asType().toString());
+                AbstractJType type = classWriter.parseType(variableElement.asType().toString());
                 JVar param = uriStringMethod.param(type, variableElement.getSimpleName().toString());
                 invocation.arg(param);
             }
         }
     }
 
-    public JArray createVarArgArray(JCodeModel codeModel, JMethod urlMethod) {
-        AbstractJType objectArray = codeModel.parseType("Object");
+    public JArray createVarArgArray(JMethod urlMethod) {
+        AbstractJType objectArray = classWriter.parseType("Object");
         JArray jArray = JExpr.newArray(objectArray);
-        appendVarArgArray(codeModel, urlMethod, jArray);
+        appendVarArgArray(urlMethod, jArray);
         return jArray;
     }
 
-    public void appendVarArgArray(JCodeModel codeModel, JMethod urlMethod, JArray jArray) {
+    public void appendVarArgArray(JMethod urlMethod, JArray jArray) {
         for (VariableElement variableElement : parameters) {
             TypeEnum typeEnum = TypeEnum.getType(variableElement);
             if (typeEnum.isRelevantForUrl()) {
-                AbstractJType type = codeModel.parseType(variableElement.asType().toString());
+                AbstractJType type = classWriter.parseType(variableElement.asType().toString());
                 JVar param = urlMethod.param(type, variableElement.getSimpleName().toString());
                 jArray.add(param);
             } else {
