@@ -10,7 +10,7 @@ public class UrlFactoryServiceGenerator extends AbstractGenerator {
     @Override
     protected void handleElement(Element elem) {
         Element clazz = elem.getEnclosingElement();
-        FactoryModel factoryModel = FactoryModel.create(clazz.toString(), getOptions());
+        FactoryModel factoryModel = FactoryModel.create(clazz.toString());
         factoryModel.appendMethod((ExecutableElement) elem);
 
     }

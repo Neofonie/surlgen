@@ -24,22 +24,20 @@ class FunctionModel {
     private final String name;
     private final JDefinedClass definedClass;
     private final JMethod serviceMethod;
-    private final Options options;
 
-    public static void write(ExecutableElement elem, Options options) {
-        FunctionModel functionModel = create(elem, options);
+    public static void write(ExecutableElement elem) {
+        FunctionModel functionModel = create(elem);
         functionModel.appendMethod(elem);
     }
 
-    private static FunctionModel create(ExecutableElement elem, Options options) {
-        return map.computeIfAbsent(elem.getEnclosingElement().toString(), key -> new FunctionModel(elem, options));
+    private static FunctionModel create(ExecutableElement elem) {
+        return map.computeIfAbsent(elem.getEnclosingElement().toString(), key -> new FunctionModel(elem));
     }
 
-    private FunctionModel(ExecutableElement elem, Options options) {
+    private FunctionModel(ExecutableElement elem) {
         name = elem.getEnclosingElement().toString();
         try {
-            this.options = options;
-            definedClass = ClassWriter.createClass(name + options.getValue(Options.OptionEnum.FunctionClassName));
+            definedClass = ClassWriter.createClass(name + Options.getValue(Options.OptionEnum.FunctionClassName));
 
             definedClass.annotate(Service.class);
             definedClass.javadoc().add("Generated with " + UrlFunctionGenerator.class.getCanonicalName());
@@ -54,7 +52,7 @@ class FunctionModel {
     private JMethod appendGetServiceMethod() {
 
 //            private<T> T getService(Class<T> beanClass) {
-        AbstractJClass serviceClass = ClassWriter.ref(name + options.getValue(Options.OptionEnum.ServiceClassName));
+        AbstractJClass serviceClass = ClassWriter.ref(name + Options.getValue(Options.OptionEnum.ServiceClassName));
         Preconditions.checkNotNull(definedClass);
         Preconditions.checkNotNull(serviceClass);
         JMethod getServiceMethod = definedClass.method(JMod.PRIVATE, serviceClass, "getService");
@@ -104,7 +102,7 @@ class FunctionModel {
         String methodName = urlMethod.getMethodName();
         JMethod uriStringMethod = definedClass.method(JMod.PUBLIC, String.class, methodName);
 
-        AbstractJClass serviceClass = ClassWriter.ref(name + options.getValue(Options.OptionEnum.ServiceClassName));
+        AbstractJClass serviceClass = ClassWriter.ref(name + Options.getValue(Options.OptionEnum.ServiceClassName));
 
         JVar service = uriStringMethod.body().decl(serviceClass, "service")
                 .init(JExpr.invoke(serviceMethod).arg(serviceClass.dotclass()));

@@ -20,13 +20,12 @@ import java.util.logging.Logger;
 public abstract class AbstractGenerator extends AbstractProcessor {
 
     private final Logger log = Logger.getLogger(getClass().getCanonicalName());
-    private Options options;
     private static File outputDir;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        options = new Options(processingEnv.getOptions());
+        Options.init(processingEnv.getOptions());
     }
 
     @Override
@@ -87,9 +86,5 @@ public abstract class AbstractGenerator extends AbstractProcessor {
             log.fine("writing source code to: " + outputDir.getAbsolutePath());
         }
         return outputDir;
-    }
-
-    protected Options getOptions() {
-        return options;
     }
 }

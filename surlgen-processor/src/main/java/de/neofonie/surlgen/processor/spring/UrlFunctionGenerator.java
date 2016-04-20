@@ -9,6 +9,6 @@ public class UrlFunctionGenerator extends AbstractGenerator {
 
     @Override
     protected void handleElement(Element elem) {
-        FunctionModel.write((ExecutableElement) elem, getOptions());
+        FunctionModel.write((ExecutableElement) elem);
     }
 }

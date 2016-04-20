@@ -19,14 +19,14 @@ public class FactoryModel {
     private final JDefinedClass definedClass;
     private final JMethod baseMvcUriComponentsMethod;
 
-    public static FactoryModel create(String name, Options options) {
-        return map.computeIfAbsent(name, key -> new FactoryModel(key, options));
+    public static FactoryModel create(String name) {
+        return map.computeIfAbsent(name, key -> new FactoryModel(key));
     }
 
-    private FactoryModel(String name, Options options) {
+    private FactoryModel(String name) {
         this.name = name;
         try {
-            definedClass = ClassWriter.createClass(name + options.getValue(Options.OptionEnum.ServiceClassName));
+            definedClass = ClassWriter.createClass(name + Options.getValue(Options.OptionEnum.ServiceClassName));
             definedClass.annotate(Service.class);
             definedClass.javadoc().add("Generated with " + UrlFactoryServiceGenerator.class.getCanonicalName());
             baseMvcUriComponentsMethod = appendBaseMvcUriComponentsBuilderMethod();

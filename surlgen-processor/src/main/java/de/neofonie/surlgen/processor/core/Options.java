@@ -3,11 +3,11 @@ package de.neofonie.surlgen.processor.core;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Options {
+public abstract class Options {
 
-    private final Map<OptionEnum, String> values = new HashMap<>();
+    private static final Map<OptionEnum, String> values = new HashMap<>();
 
-    public Options(Map<String, String> options) {
+    public static void init(Map<String, String> options) {
         for (OptionEnum optionEnum : OptionEnum.values()) {
             String s = options.get(optionEnum.name);
             if (s == null) {
@@ -18,7 +18,7 @@ public class Options {
         }
     }
 
-    public String getValue(OptionEnum optionEnum) {
+    public static String getValue(OptionEnum optionEnum) {
         return values.get(optionEnum);
     }
 
