@@ -1,5 +1,6 @@
 package de.neofonie.surlgen.processor.core;
 
+import com.google.common.base.Preconditions;
 import com.helger.jcodemodel.*;
 import com.helger.jcodemodel.writer.FileCodeWriter;
 
@@ -9,17 +10,21 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ClassWriter {
+public abstract class ClassWriter {
 
     private static final Map<String, JDefinedClass> createdClasses = new HashMap<>();
-    private final JCodeModel codeModel;
+    private static JCodeModel codeModel;
 
-    public ClassWriter(JCodeModel codeModel) {
-        this.codeModel = codeModel;
+    public static void init() {
+        Preconditions.checkArgument(codeModel == null);
+        codeModel = new JCodeModel();
+    }
+
+    private ClassWriter() {
     }
 
     @Nonnull
-    public JDefinedClass createClass(@Nonnull String sFullyQualifiedClassName) throws JClassAlreadyExistsException {
+    public static JDefinedClass createClass(@Nonnull String sFullyQualifiedClassName) throws JClassAlreadyExistsException {
         JDefinedClass result = createdClasses.get(sFullyQualifiedClassName);
         if (result != null) {
             return result;
@@ -29,36 +34,31 @@ public class ClassWriter {
         return result;
     }
 
-    public static interface Init {
-        void init(JDefinedClass definedClass);
-    }
-
     @Nonnull
-    public AbstractJClass ref(@Nonnull Class<?> clazz) {
+    public static AbstractJClass ref(@Nonnull Class<?> clazz) {
         return codeModel.ref(clazz);
     }
 
-    public void build(@Nonnull AbstractCodeWriter out) throws IOException {
+    static void build(@Nonnull AbstractCodeWriter out) throws IOException {
         codeModel.build(out);
     }
 
     @Nonnull
-    public AbstractJType parseType(@Nonnull String name) {
+    public static AbstractJType parseType(@Nonnull String name) {
         return codeModel.parseType(name);
     }
 
     @Nonnull
-    public AbstractJClass ref(@Nonnull String sFullyQualifiedClassName) {
+    public static AbstractJClass ref(@Nonnull String sFullyQualifiedClassName) {
         return codeModel.ref(sFullyQualifiedClassName);
     }
 
-    public void writeSourceCodes(File outputDir) throws IOException, JClassAlreadyExistsException {
-//        for (FunctionModel functionModel : map.values()) {
+    public static void writeSourceCodes(File outputDir) throws IOException {
         writeSourceCode(outputDir);
-//        }
+        codeModel = null;
     }
 
-    private void writeSourceCode(File outputDir) throws JClassAlreadyExistsException, IOException {
+    private static void writeSourceCode(File outputDir) throws IOException {
         build(new FileCodeWriter(outputDir));
     }
 }

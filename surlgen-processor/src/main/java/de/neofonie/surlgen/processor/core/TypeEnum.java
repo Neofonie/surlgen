@@ -23,9 +23,9 @@ enum TypeEnum {
         if (variableElement.getAnnotation(PathVariable.class) != null) {
             return URL_RELEVANT;
         }
-        //MatrixVariable is currently not implemented in MvcUriComponentsBuilder - so we cant support this
+        //ModelAttribute is currently not implemented in MvcUriComponentsBuilder - so we cant support this
         if (variableElement.getAnnotation(ModelAttribute.class) != null) {
-            log.info("MatrixVariable currently isnt supported in MvcUriComponentsBuilder");
+            log.info("ModelAttribute currently isnt supported in MvcUriComponentsBuilder");
             return NOT_SUPPORTED;
         }
         //MatrixVariable is currently not implemented in MvcUriComponentsBuilder - so we cant support this

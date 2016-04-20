@@ -10,12 +10,10 @@ public class UrlMethod {
 
     private final List<? extends VariableElement> parameters;
     private final ExecutableElement method;
-    private final ClassWriter classWriter;
 
-    public UrlMethod(ExecutableElement method, ClassWriter classWriter) {
+    public UrlMethod(ExecutableElement method) {
         this.method = method;
-        this.classWriter = classWriter;
-        this.parameters = method.getParameters();
+        parameters = method.getParameters();
     }
 
     public String getMethodName() {
@@ -26,7 +24,7 @@ public class UrlMethod {
         for (VariableElement variableElement : parameters) {
             TypeEnum typeEnum = TypeEnum.getType(variableElement);
             if (typeEnum.isRelevantForUrl()) {
-                AbstractJType type = classWriter.parseType(variableElement.asType().toString());
+                AbstractJType type = ClassWriter.parseType(variableElement.asType().toString());
                 JVar param = uriStringMethod.param(type, variableElement.getSimpleName().toString());
                 invocation.arg(param);
             }
@@ -34,17 +32,17 @@ public class UrlMethod {
     }
 
     public JArray createVarArgArray(JMethod urlMethod) {
-        AbstractJType objectArray = classWriter.parseType("Object");
+        AbstractJType objectArray = ClassWriter.parseType("Object");
         JArray jArray = JExpr.newArray(objectArray);
         appendVarArgArray(urlMethod, jArray);
         return jArray;
     }
 
-    public void appendVarArgArray(JMethod urlMethod, JArray jArray) {
+    void appendVarArgArray(JMethod urlMethod, JArray jArray) {
         for (VariableElement variableElement : parameters) {
             TypeEnum typeEnum = TypeEnum.getType(variableElement);
             if (typeEnum.isRelevantForUrl()) {
-                AbstractJType type = classWriter.parseType(variableElement.asType().toString());
+                AbstractJType type = ClassWriter.parseType(variableElement.asType().toString());
                 JVar param = urlMethod.param(type, variableElement.getSimpleName().toString());
                 jArray.add(param);
             } else {

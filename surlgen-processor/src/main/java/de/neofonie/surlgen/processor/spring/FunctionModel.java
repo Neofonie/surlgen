@@ -22,32 +22,24 @@ class FunctionModel {
 
     private static final Map<String, FunctionModel> map = new HashMap<>();
     private final String name;
-    private final ClassWriter classWriter;
-    //        private final JDefinedClass serviceClass;
     private final JDefinedClass definedClass;
-    private JMethod serviceMethod;
+    private final JMethod serviceMethod;
     private final Options options;
 
-    public static void write(ExecutableElement elem, Options options, ClassWriter classWriter) {
-        FunctionModel functionModel = FunctionModel.create(elem, options, classWriter);
-        functionModel.appendMethod((ExecutableElement) elem);
-
-//        FunctionModel functionModel = new FunctionModel(elem, options, classWriter);
-//        functionModel.appendMethod(elem);
+    public static void write(ExecutableElement elem, Options options) {
+        FunctionModel functionModel = create(elem, options);
+        functionModel.appendMethod(elem);
     }
 
-    public static FunctionModel create(ExecutableElement elem, Options options, ClassWriter classWriter) {
-        return map.computeIfAbsent(elem.getEnclosingElement().toString(), key -> new FunctionModel(elem, options, classWriter));
+    private static FunctionModel create(ExecutableElement elem, Options options) {
+        return map.computeIfAbsent(elem.getEnclosingElement().toString(), key -> new FunctionModel(elem, options));
     }
 
-    FunctionModel(ExecutableElement elem, Options options, ClassWriter classWriter) {
-        this.name = elem.getEnclosingElement().toString();
-        this.classWriter = classWriter;
-//            classWriter = new JCodeModel();
+    private FunctionModel(ExecutableElement elem, Options options) {
+        name = elem.getEnclosingElement().toString();
         try {
             this.options = options;
-//                serviceClass = classWriter._class(name + options.getValue(Options.OptionEnum.ServiceClassName));
-            definedClass = this.classWriter.createClass(name + options.getValue(Options.OptionEnum.FunctionClassName));
+            definedClass = ClassWriter.createClass(name + options.getValue(Options.OptionEnum.FunctionClassName));
 
             definedClass.annotate(Service.class);
             definedClass.javadoc().add("Generated with " + UrlFunctionGenerator.class.getCanonicalName());
@@ -62,37 +54,37 @@ class FunctionModel {
     private JMethod appendGetServiceMethod() {
 
 //            private<T> T getService(Class<T> beanClass) {
-        AbstractJClass serviceClass = classWriter.ref(name + options.getValue(Options.OptionEnum.ServiceClassName));
+        AbstractJClass serviceClass = ClassWriter.ref(name + options.getValue(Options.OptionEnum.ServiceClassName));
         Preconditions.checkNotNull(definedClass);
         Preconditions.checkNotNull(serviceClass);
         JMethod getServiceMethod = definedClass.method(JMod.PRIVATE, serviceClass, "getService");
         JTypeVar t = getServiceMethod.generify("T");
         getServiceMethod.type(t);
 
-        AbstractJClass beanClass2 = classWriter.ref(Class.class).narrow(t);
+        AbstractJClass beanClass2 = ClassWriter.ref(Class.class).narrow(t);
         JVar beanClass = getServiceMethod.param(beanClass2, "beanClass");
 
 //            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         JBlock body = getServiceMethod.body();
         JVar requestAttributes = body
-                .decl(classWriter.ref(RequestAttributes.class), "requestAttributes")
-                .init(classWriter.ref(RequestContextHolder.class).staticInvoke("getRequestAttributes"));
+                .decl(ClassWriter.ref(RequestAttributes.class), "requestAttributes")
+                .init(ClassWriter.ref(RequestContextHolder.class).staticInvoke("getRequestAttributes"));
 
 //                HttpServletRequest servletRequest = ((ServletRequestAttributes) requestAttributes).getRequest();
         JVar servletRequest = body
-                .decl(classWriter.ref(HttpServletRequest.class), "servletRequest")
-                .init(JExpr.cast(classWriter.ref(ServletRequestAttributes.class), requestAttributes)
+                .decl(ClassWriter.ref(HttpServletRequest.class), "servletRequest")
+                .init(JExpr.cast(ClassWriter.ref(ServletRequestAttributes.class), requestAttributes)
                         .invoke("getRequest"));
 
 //            ServletContext servletContext = servletRequest.getServletContext();
         JVar servletContext = body
-                .decl(classWriter.ref(ServletContext.class), "servletContext")
+                .decl(ClassWriter.ref(ServletContext.class), "servletContext")
                 .init(servletRequest.invoke("getServletContext"));
 
 //            WebApplicationContext webApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
         JVar webApplicationContext = body
-                .decl(classWriter.ref(WebApplicationContext.class), "webApplicationContext")
-                .init(classWriter
+                .decl(ClassWriter.ref(WebApplicationContext.class), "webApplicationContext")
+                .init(ClassWriter
                         .ref(WebApplicationContextUtils.class)
                         .staticInvoke("getRequiredWebApplicationContext")
                         .arg(servletContext));
@@ -104,48 +96,21 @@ class FunctionModel {
     }
 
     void appendMethod(ExecutableElement method) {
-//            String methodName = method.getSimpleName().toString();
-        UrlMethod urlMethod = new UrlMethod(method, classWriter);
-
-//            JMethod mvcUriComponentsBuilderMethod = appendMvcUriComponentsBuilderMethod(methodName, urlMethod);
+        UrlMethod urlMethod = new UrlMethod(method);
         appendUriStringMethod(urlMethod);
     }
 
-    //
     private void appendUriStringMethod(UrlMethod urlMethod) {
         String methodName = urlMethod.getMethodName();
         JMethod uriStringMethod = definedClass.method(JMod.PUBLIC, String.class, methodName);
-//            definedClass.
-//        checkSupport(urlMethod, uriStringMethod);
 
-        AbstractJClass serviceClass = classWriter.ref(name + options.getValue(Options.OptionEnum.ServiceClassName));
+        AbstractJClass serviceClass = ClassWriter.ref(name + options.getValue(Options.OptionEnum.ServiceClassName));
 
         JVar service = uriStringMethod.body().decl(serviceClass, "service")
                 .init(JExpr.invoke(serviceMethod).arg(serviceClass.dotclass()));
         JInvocation invocation = service.invoke(methodName + "UriString");
 
-//            JInvocation invocation = JExpr.invoke(mvcUriComponentsBuilderMethod);
         uriStringMethod.body()._return(invocation);
         urlMethod.appendParams(uriStringMethod, invocation);
     }
-
-//
-//        private JMethod appendMvcUriComponentsBuilderMethod(String methodName, Params parameters) {
-//            JMethod urlMethod = definedClass.method(JMod.PUBLIC, UriComponentsBuilder.class, methodName);
-////        checkSupport(parameters, urlMethod);
-//            JBlock body = urlMethod.body();
-//            JInvocation fromMethodName = createMvcUriComponentsBuilderInvocation(parameters, methodName, urlMethod);
-//            body._return(fromMethodName);
-//            return urlMethod;
-//        }
-//
-//        private JInvocation createMvcUriComponentsBuilderInvocation(Params parameters, String methodName, JMethod urlMethod) {
-//            AbstractJClass mvcUriComponentsBuilder = classWriter.ref(MvcUriComponentsBuilder.class);
-//            JInvocation fromMethodName = mvcUriComponentsBuilder.staticInvoke("fromMethodName");
-//            fromMethodName.arg(JExpr.invoke(baseMvcUriComponentsMethod));
-//            fromMethodName.arg(classWriter.ref(name).dotclass());
-//            fromMethodName.arg(methodName);
-//            fromMethodName.arg(parameters.createVarArgArray(classWriter, urlMethod));
-//            return fromMethodName;
-//        }
 }

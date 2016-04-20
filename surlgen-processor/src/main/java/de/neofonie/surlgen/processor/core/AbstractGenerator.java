@@ -1,7 +1,5 @@
 package de.neofonie.surlgen.processor.core;
 
-import com.helger.jcodemodel.JClassAlreadyExistsException;
-import com.helger.jcodemodel.JCodeModel;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -24,7 +22,6 @@ public abstract class AbstractGenerator extends AbstractProcessor {
     private final Logger log = Logger.getLogger(getClass().getCanonicalName());
     private Options options;
     private static File outputDir;
-    private static ClassWriter classWriter;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -49,9 +46,7 @@ public abstract class AbstractGenerator extends AbstractProcessor {
         if (roundEnv.processingOver()) {
             return true;
         }
-        if (classWriter == null) {
-            classWriter = new ClassWriter(new JCodeModel());
-        }
+        ClassWriter.init();
 
         for (Element elem : roundEnv.getElementsAnnotatedWith(RequestMapping.class)) {
             if (log.isLoggable(Level.FINE)) {
@@ -61,7 +56,7 @@ public abstract class AbstractGenerator extends AbstractProcessor {
             ElementKind elementKind = elem.getKind();
 
             if (elementKind == ElementKind.METHOD) {
-                handleElement(elem, classWriter);
+                handleElement(elem);
             }
         }
 
@@ -71,15 +66,15 @@ public abstract class AbstractGenerator extends AbstractProcessor {
 
     private void finished() {
         try {
-            classWriter.writeSourceCodes(getOutputDir());
-        } catch (IOException | JClassAlreadyExistsException e) {
+            ClassWriter.writeSourceCodes(getOutputDir());
+        } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
-    protected abstract void handleElement(Element elem, ClassWriter classWriter);
+    protected abstract void handleElement(Element elem);
 
-    protected File getOutputDir() throws IOException {
+    File getOutputDir() throws IOException {
         if (outputDir != null) {
             return outputDir;
         }
@@ -94,7 +89,7 @@ public abstract class AbstractGenerator extends AbstractProcessor {
         return outputDir;
     }
 
-    public Options getOptions() {
+    protected Options getOptions() {
         return options;
     }
 }
