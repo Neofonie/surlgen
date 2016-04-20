@@ -7,11 +7,9 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.VariableElement;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class FactoryModel {
@@ -58,30 +56,22 @@ public class FactoryModel {
 
     void appendMethod(ExecutableElement method) {
         String methodName = method.getSimpleName().toString();
-        List<? extends VariableElement> parameters = method.getParameters();
+        Params parameters = new Params(method.getParameters());
 
         JMethod mvcUriComponentsBuilderMethod = appendMvcUriComponentsBuilderMethod(methodName, parameters);
         appendUriStringMethod(methodName, parameters, mvcUriComponentsBuilderMethod);
     }
 
-    private void appendUriStringMethod(String methodName, List<? extends VariableElement> parameters, JMethod mvcUriComponentsBuilderMethod) {
+    private void appendUriStringMethod(String methodName, Params parameters, JMethod mvcUriComponentsBuilderMethod) {
         JMethod uriStringMethod = definedClass.method(JMod.PUBLIC, String.class, methodName + "UriString");
 //        checkSupport(parameters, uriStringMethod);
 
-        JBlock body = uriStringMethod.body();
         JInvocation invocation = JExpr.invoke(mvcUriComponentsBuilderMethod);
-        body._return(invocation.invoke("toUriString"));
-        for (VariableElement variableElement : parameters) {
-            TypeEnum typeEnum = TypeEnum.getType(variableElement);
-            if (typeEnum.isRelevantForUrl()) {
-                AbstractJType type = codeModel.parseType(variableElement.asType().toString());
-                JVar param = uriStringMethod.param(type, variableElement.getSimpleName().toString());
-                invocation.arg(param);
-            }
-        }
+        uriStringMethod.body()._return(invocation.invoke("toUriString"));
+        parameters.appendParams(codeModel, uriStringMethod, invocation);
     }
 
-    private JMethod appendMvcUriComponentsBuilderMethod(String methodName, List<? extends VariableElement> parameters) {
+    private JMethod appendMvcUriComponentsBuilderMethod(String methodName, Params parameters) {
         JMethod urlMethod = definedClass.method(JMod.PUBLIC, UriComponentsBuilder.class, methodName);
 //        checkSupport(parameters, urlMethod);
         JBlock body = urlMethod.body();
@@ -100,26 +90,13 @@ public class FactoryModel {
 //        }
 //    }
 
-    private JInvocation createMvcUriComponentsBuilderInvocation(List<? extends VariableElement> parameters, String methodName, JMethod urlMethod) {
+    private JInvocation createMvcUriComponentsBuilderInvocation(Params parameters, String methodName, JMethod urlMethod) {
         AbstractJClass mvcUriComponentsBuilder = codeModel.ref(MvcUriComponentsBuilder.class);
         JInvocation fromMethodName = mvcUriComponentsBuilder.staticInvoke("fromMethodName");
         fromMethodName.arg(JExpr.invoke(baseMvcUriComponentsMethod));
         fromMethodName.arg(codeModel.ref(name).dotclass());
         fromMethodName.arg(methodName);
-
-        AbstractJType objectArray = codeModel.parseType("Object");
-        JArray jArray = JExpr.newArray(objectArray);
-        for (VariableElement variableElement : parameters) {
-            TypeEnum typeEnum = TypeEnum.getType(variableElement);
-            if (typeEnum.isRelevantForUrl()) {
-                AbstractJType type = codeModel.parseType(variableElement.asType().toString());
-                JVar param = urlMethod.param(type, variableElement.getSimpleName().toString());
-                jArray.add(param);
-            } else {
-                jArray.add(JExpr._null());
-            }
-        }
-        fromMethodName.arg(jArray);
+        fromMethodName.arg(parameters.createVarArgArray(codeModel, urlMethod));
         return fromMethodName;
     }
 }
