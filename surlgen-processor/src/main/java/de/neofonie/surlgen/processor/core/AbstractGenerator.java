@@ -8,6 +8,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +56,7 @@ public abstract class AbstractGenerator extends AbstractProcessor {
             ElementKind elementKind = elem.getKind();
 
             if (elementKind == ElementKind.METHOD) {
-                handleElement(elem);
+                handleElement((ExecutableElement) elem);
             }
         }
 
@@ -71,7 +72,7 @@ public abstract class AbstractGenerator extends AbstractProcessor {
         }
     }
 
-    protected abstract void handleElement(Element elem);
+    protected abstract void handleElement(ExecutableElement elem);
 
     File getOutputDir() throws IOException {
         if (outputDir != null) {

@@ -23,8 +23,7 @@ public abstract class ClassWriter {
     private ClassWriter() {
     }
 
-    @Nonnull
-    public static JDefinedClass createClass(@Nonnull String sFullyQualifiedClassName) throws JClassAlreadyExistsException {
+    public static JDefinedClass createClass(String sFullyQualifiedClassName) throws JClassAlreadyExistsException {
         JDefinedClass result = createdClasses.get(sFullyQualifiedClassName);
         if (result != null) {
             return result;

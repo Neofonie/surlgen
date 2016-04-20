@@ -24,7 +24,7 @@ public abstract class Options {
 
     public static enum OptionEnum {
         ServiceClassName("service.class.name", "UrlFactoryGenerated"),
-        FunctionClassName("function.class.name", "FunctionGenerated"),
+        FunctionClassName("function.class.name", "de.neofonie.surlgen.UrlFunction"),
         ServiceAddUriComponentsBuilder("service.addUriComponentsBuilder", "false");
 
         private final String name;

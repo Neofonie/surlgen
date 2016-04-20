@@ -2,6 +2,7 @@ package de.neofonie.surlgen.processor.core;
 
 import com.helger.jcodemodel.*;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import java.util.List;
@@ -14,6 +15,10 @@ public class UrlMethod {
     public UrlMethod(ExecutableElement method) {
         this.method = method;
         parameters = method.getParameters();
+    }
+
+    public Element getClazz() {
+        return method.getEnclosingElement();
     }
 
     public String getMethodName() {
