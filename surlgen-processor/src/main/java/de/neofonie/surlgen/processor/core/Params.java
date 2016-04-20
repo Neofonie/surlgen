@@ -1,4 +1,4 @@
-package de.neofonie.surlgen.processor.spring;
+package de.neofonie.surlgen.processor.core;
 
 import com.helger.jcodemodel.*;
 

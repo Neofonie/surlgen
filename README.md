@@ -4,7 +4,7 @@
 
 ### Create Service-Classes for Spring-RequestMapping Annotation 
 
-To generate Spring Services for every [@RequestMapping](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/bind/annotation/RequestMapping.html) 
+To generate Spring Services for every [@RequestMapping](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/bind/annotation/RequestMapping.html) 
 add following to your pom.xml in the build/plugins section.
 
 ```XML
@@ -27,4 +27,4 @@ add following to your pom.xml in the build/plugins section.
 ```
 
 This will generate for each Controller methods to generate (compiler-safe) methods for url-construction. 
-These are based on MvcUriComponentsBuilder.
+These are based on [MvcUriComponentsBuilder](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/servlet/mvc/method/annotation/MvcUriComponentsBuilder.html).

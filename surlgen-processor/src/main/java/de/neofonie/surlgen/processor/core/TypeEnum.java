@@ -1,4 +1,4 @@
-package de.neofonie.surlgen.processor.spring;
+package de.neofonie.surlgen.processor.core;
 
 import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;

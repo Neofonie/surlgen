@@ -2,6 +2,8 @@ package de.neofonie.surlgen.processor.spring;
 
 import com.helger.jcodemodel.*;
 import com.helger.jcodemodel.writer.FileCodeWriter;
+import de.neofonie.surlgen.processor.core.Options;
+import de.neofonie.surlgen.processor.core.Params;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
