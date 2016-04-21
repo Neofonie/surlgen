@@ -25,7 +25,9 @@ public abstract class Options {
     public static enum OptionEnum {
         ServiceClassName("service.class.name", "UrlFactoryGenerated"),
         FunctionClassName("function.class.name", "de.neofonie.surlgen.UrlFunction"),
-        ServiceAddUriComponentsBuilder("service.addUriComponentsBuilder", "false");
+        ServiceAddUriComponentsBuilder("service.addUriComponentsBuilder", "false"),
+        TLD_FILE_NAME("tld.file", ""),
+        TLD_URI("tld.uri", "http://de.neofonie.surlgen.uri/");
 
         private final String name;
         private final String defaultValue;
@@ -33,6 +35,10 @@ public abstract class Options {
         OptionEnum(String name, String defaultValue) {
             this.name = name;
             this.defaultValue = defaultValue;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 }

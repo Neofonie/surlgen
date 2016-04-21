@@ -61,12 +61,18 @@ public abstract class AbstractGenerator extends AbstractProcessor {
         }
 
         finished();
+        finished(getOutputDir());
         return false; // no further processing of this annotation type
+    }
+
+    protected void finished(File outputDir) {
+
     }
 
     private void finished() {
         try {
-            ClassWriter.writeSourceCodes(getOutputDir());
+            File outputDir1 = getOutputDir();
+            ClassWriter.writeSourceCodes(outputDir1);
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
@@ -74,18 +80,23 @@ public abstract class AbstractGenerator extends AbstractProcessor {
 
     protected abstract void handleElement(ExecutableElement elem);
 
-    File getOutputDir() throws IOException {
-        if (outputDir != null) {
+    File getOutputDir() {
+        try {
+
+            if (outputDir != null) {
+                return outputDir;
+            }
+            URI tempFile = processingEnv.getFiler().createSourceFile("a").toUri();
+            outputDir = new File(tempFile).getParentFile();
+            if (!outputDir.exists() && !outputDir.mkdirs()) {
+                throw new IOException("Couldnt create " + outputDir.getAbsolutePath());
+            }
+            if (log.isLoggable(Level.FINE)) {
+                log.fine("writing source code to: " + outputDir.getAbsolutePath());
+            }
             return outputDir;
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
         }
-        URI tempFile = processingEnv.getFiler().createSourceFile("a").toUri();
-        outputDir = new File(tempFile).getParentFile();
-        if (!outputDir.exists() && !outputDir.mkdirs()) {
-            throw new IOException("Couldnt create " + outputDir.getAbsolutePath());
-        }
-        if (log.isLoggable(Level.FINE)) {
-            log.fine("writing source code to: " + outputDir.getAbsolutePath());
-        }
-        return outputDir;
     }
 }

@@ -32,8 +32,8 @@
                             </processors>
 
                             <options>
-                                <!--<service.class.name>Foobar</service.class.name>-->
-                                <!--<service.addUriComponentsBuilder>true</service.addUriComponentsBuilder>-->
+                                <tld.file>${project.build.directory}/${project.build.finalName}/WEB-INF/tld/urls.tld
+                                </tld.file>
                             </options>
                         </configuration>
                     </execution>
@@ -73,7 +73,6 @@
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
-
 
         <dependency>
             <groupId>org.springframework</groupId>
