@@ -24,6 +24,7 @@
 
 package de.neofonie.surlgen.processor.core;
 
+import com.helger.jcodemodel.JBlock;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
 import org.springframework.web.bind.annotation.MatrixVariable;
@@ -51,14 +52,16 @@ enum TypeEnum {
             if (typeMirror.getKind() == TypeKind.DECLARED) {
                 DeclaredType declaredType = (DeclaredType) typeMirror;
                 JVar param = method.param(ClassWriter.ref(declaredType.asElement().toString()), variableElement.getSimpleName().toString());
+                JBlock block = method.body()._if(param.neNull())._then();
+//                JBlock block = method.body();
                 List<? extends Element> elements = declaredType.asElement().getEnclosedElements();
                 for (Element element : elements) {
-                    handleElement(method, uriComponentsBuilder, element, param);
+                    handleElement(block, uriComponentsBuilder, element, param);
                 }
             }
         }
 
-        private void handleElement(JMethod method, JVar uriComponentsBuilder, Element element, JVar param) {
+        private void handleElement(JBlock body, JVar uriComponentsBuilder, Element element, JVar param) {
             if (!(element instanceof ExecutableElement)
                     || !element.getSimpleName().toString().startsWith("get")) {
                 return;
@@ -74,8 +77,11 @@ enum TypeEnum {
             String name = CamelCaseUtils.firstCharLowerCased(element.getSimpleName().toString().substring(3));
 
 //            doWithModel.queryParam("fooo", "bar", "blub");
-            method.body().invoke(uriComponentsBuilder, "queryParam").arg(name)
-                    .arg(param.invoke(executableElement.getSimpleName().toString()));
+
+            JVar var = body.decl(ClassWriter.ref(Object.class), name).init(param.invoke(executableElement.getSimpleName().toString()));
+            body._if(var.neNull())._then()
+                    .invoke(uriComponentsBuilder, "queryParam").arg(name)
+                    .arg(var);
 
         }
     },

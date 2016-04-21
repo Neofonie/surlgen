@@ -54,6 +54,7 @@ public class UrlFactory {
 
         HelloWorldCommand command = new HelloWorldCommand();
         command.setId(25);
+        result.add(helloWorldControllerUrlFactory.doWithModelUriString(command));
         command.setCaption("foobar");
         result.add(MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "doWithModel", new Object[]{command}).toUriString());
         result.add(helloWorldControllerUrlFactory.doWithModelUriString(command));

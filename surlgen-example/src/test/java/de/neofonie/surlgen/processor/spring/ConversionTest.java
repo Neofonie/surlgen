@@ -50,8 +50,7 @@ public class ConversionTest {
 //        assertEquals(date, conversionService.convert("Thu Jan 01 04:25:13 CET 1970", Date.class));
 
         LocalDate date2 = LocalDate.of(2012, 1, 31);
-        assertEquals("31.01.12", conversionService.convert(date2, String.class));
-        assertEquals(date2, conversionService.convert("31.01.12", LocalDate.class));
+        assertEquals(date2, conversionService.convert(conversionService.convert(date2, String.class), LocalDate.class));
 
         assertEquals(Long.valueOf(123L), conversionService.convert("123", Long.class));
         assertEquals("123", conversionService.convert(123, String.class));
