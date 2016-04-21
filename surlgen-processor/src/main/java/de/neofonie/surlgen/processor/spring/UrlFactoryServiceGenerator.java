@@ -67,10 +67,17 @@ public class UrlFactoryServiceGenerator extends AbstractGenerator {
         }
 
         private JMethod appendBaseMvcUriComponentsBuilderMethod() {
-            JMethod getBaseMvcUriComponentsBuilder = definedClass.method(JMod.PROTECTED, UriComponentsBuilder.class, "getBaseUriComponentsBuilder");
-            getBaseMvcUriComponentsBuilder.body()._return(JExpr._null());
-            getBaseMvcUriComponentsBuilder.javadoc().add("Extension-Point to use another Base-UriComponentsBuilder than the default one");
-            return getBaseMvcUriComponentsBuilder;
+            try {
+                MvcUriComponentsBuilder.class.getMethod("fromMethodName", UriComponentsBuilder.class, Class.class, String.class, Object[].class);
+
+                JMethod getBaseMvcUriComponentsBuilder = definedClass.method(JMod.PROTECTED, UriComponentsBuilder.class, "getBaseUriComponentsBuilder");
+                getBaseMvcUriComponentsBuilder.body()._return(JExpr._null());
+                getBaseMvcUriComponentsBuilder.javadoc().add("Extension-Point to use another Base-UriComponentsBuilder than the default one");
+                return getBaseMvcUriComponentsBuilder;
+            } catch (NoSuchMethodException e) {
+// prior to Spring 4.2
+                return null;
+            }
         }
 
         void appendMethod(ExecutableElement method) {
@@ -101,7 +108,9 @@ public class UrlFactoryServiceGenerator extends AbstractGenerator {
         private JInvocation createMvcUriComponentsBuilderInvocation(UrlMethod parameters, String methodName, JMethod urlMethod) {
             AbstractJClass mvcUriComponentsBuilder = ClassWriter.ref(MvcUriComponentsBuilder.class);
             JInvocation fromMethodName = mvcUriComponentsBuilder.staticInvoke("fromMethodName");
-            fromMethodName.arg(JExpr.invoke(baseMvcUriComponentsMethod));
+            if (baseMvcUriComponentsMethod != null) {
+                fromMethodName.arg(JExpr.invoke(baseMvcUriComponentsMethod));
+            }
             fromMethodName.arg(ClassWriter.ref(name).dotclass());
             fromMethodName.arg(methodName);
             fromMethodName.arg(parameters.createVarArgArray(urlMethod));
