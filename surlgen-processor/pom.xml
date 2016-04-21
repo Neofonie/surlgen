@@ -29,7 +29,7 @@
     <parent>
         <groupId>de.neofonie.surlgen</groupId>
         <artifactId>surlgen</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>surlgen-processor</artifactId>
