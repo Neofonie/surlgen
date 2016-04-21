@@ -53,7 +53,6 @@ enum TypeEnum {
                 DeclaredType declaredType = (DeclaredType) typeMirror;
                 JVar param = method.param(ClassWriter.ref(declaredType.asElement().toString()), variableElement.getSimpleName().toString());
                 JBlock block = method.body()._if(param.neNull())._then();
-//                JBlock block = method.body();
                 List<? extends Element> elements = declaredType.asElement().getEnclosedElements();
                 for (Element element : elements) {
                     handleElement(block, uriComponentsBuilder, element, param);
@@ -77,7 +76,6 @@ enum TypeEnum {
             String name = CamelCaseUtils.firstCharLowerCased(element.getSimpleName().toString().substring(3));
 
 //            doWithModel.queryParam("fooo", "bar", "blub");
-
             JVar var = body.decl(ClassWriter.ref(Object.class), name).init(param.invoke(executableElement.getSimpleName().toString()));
             body._if(var.neNull())._then()
                     .invoke(uriComponentsBuilder, "queryParam").arg(name)
