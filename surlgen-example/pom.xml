@@ -30,7 +30,6 @@
                                 <processor>de.neofonie.surlgen.processor.spring.UrlFactoryServiceGenerator</processor>
                                 <processor>de.neofonie.surlgen.processor.spring.UrlFunctionGenerator</processor>
                             </processors>
-
                             <options>
                                 <tld.file>${project.build.directory}/${project.build.finalName}/WEB-INF/tld/urls.tld
                                 </tld.file>

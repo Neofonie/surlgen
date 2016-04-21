@@ -18,7 +18,6 @@ add following to your pom.xml in the build/plugins section.
                 <goal>process</goal>
             </goals>
             <configuration>
-                <outputDirectory>${project.build.directory}/generated-sources/surlgen</outputDirectory>
                 <processor>de.neofonie.surlgen.processor.spring.UrlFactoryServiceGenerator</processor>
             </configuration>
         </execution>
@@ -28,3 +27,17 @@ add following to your pom.xml in the build/plugins section.
 
 This will generate for each Controller methods to generate (compiler-safe) methods for url-construction. 
 These are based on [MvcUriComponentsBuilder](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/servlet/mvc/method/annotation/MvcUriComponentsBuilder.html).
+
+### Create Static-Accessors/TLD for Url-Factory class 
+
+Adding the UrlFunctionGenerator as processor will generate a UrlFunction-Class. Applying a additional tld-filename, a TLD-File will also be generated. 
+
+```XML
+<processors>
+    <processor>de.neofonie.surlgen.processor.spring.UrlFactoryServiceGenerator</processor>
+    <processor>de.neofonie.surlgen.processor.spring.UrlFunctionGenerator</processor>
+</processors>
+<options>
+    <tld.file>${project.build.directory}/${project.build.finalName}/WEB-INF/tld/urls.tld</tld.file>
+</options>
+```
