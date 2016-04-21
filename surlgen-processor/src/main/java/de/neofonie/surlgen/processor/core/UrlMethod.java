@@ -67,16 +67,23 @@ public class UrlMethod {
         return jArray;
     }
 
-    void appendVarArgArray(JMethod urlMethod, JArray jArray) {
+    private void appendVarArgArray(JMethod urlMethod, JArray jArray) {
         for (VariableElement variableElement : parameters) {
             TypeEnum typeEnum = TypeEnum.getType(variableElement);
-            if (typeEnum.isRelevantForUrl()) {
+            if (typeEnum == TypeEnum.URL_RELEVANT) {
                 AbstractJType type = ClassWriter.parseType(variableElement.asType().toString());
                 JVar param = urlMethod.param(type, variableElement.getSimpleName().toString());
                 jArray.add(param);
             } else {
                 jArray.add(JExpr._null());
             }
+        }
+    }
+
+    public void handleUriComponentsBuilderPostRequest(JMethod method, JVar uriComponentsBuilder) {
+        for (VariableElement variableElement : parameters) {
+            TypeEnum typeEnum = TypeEnum.getType(variableElement);
+            typeEnum.handleUriComponentsBuilderPostRequest(method, uriComponentsBuilder, variableElement);
         }
     }
 }

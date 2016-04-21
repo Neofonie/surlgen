@@ -35,6 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -78,16 +79,19 @@ public class UrlFactoryServiceGeneratorTest {
         HelloWorldCommand command = new HelloWorldCommand();
         command.setId(25);
         command.setCaption("foobar");
-        assertEquals("http://localhost/doWithModel",
-                testExampleControllerUrlFactory.doWithModelUriString());
-        assertEquals("http://localhost/doWithModel",
-                MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "doWithModel", new Object[]{command}).toUriString());
+        assertEquals("http://localhost/doWithModel?id=25&caption=foobar",
+                testExampleControllerUrlFactory.doWithModelUriString(command));
+
+        UriComponentsBuilder doWithModel = MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "doWithModel", new Object[]{command});
+        assertEquals("http://localhost/doWithModel", doWithModel.toUriString());
+        doWithModel.queryParam("fooo", "bar", "blub");
+        assertEquals("http://localhost/doWithModel?fooo=bar&fooo=blub", doWithModel.toUriString());
 
         Account account = new Account();
         account.setValue(123);
 
-        assertEquals("http://localhost/accounts/%7Baccount%7D",
-                testExampleControllerUrlFactory.saveUriString());
+        assertEquals("http://localhost/accounts/%7Baccount%7D?value=123",
+                testExampleControllerUrlFactory.saveUriString(account));
         assertEquals("http://localhost/accounts/%7Baccount%7D",
                 MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "save", new Object[]{account}).toUriString());
 

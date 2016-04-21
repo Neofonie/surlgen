@@ -34,7 +34,6 @@
 <c:forEach items="${urls}" var="url">
     <div><a href="${url}">${url}</a></div>
 </c:forEach>
-<div><a href="/doWithModel?id=123&caption=1233">http://localhost:8080/doWithModel?id=123&caption=1233</a></div>
 
 <h2>By TLD</h2>
 <a href="${url:helloWorldController2GetBooking("fooo")}">${url:helloWorldController2GetBooking("fooo")}</a>

@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Controller
@@ -73,7 +74,7 @@ public class HelloWorldController {
     }
 
     @RequestMapping("/date")
-    public String doWithDate(@RequestParam Date date) {
+    public String doWithDate(@RequestParam LocalDate date) {
         return "/index";
     }
 

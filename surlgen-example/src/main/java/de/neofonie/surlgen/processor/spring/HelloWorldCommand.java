@@ -45,6 +45,15 @@ public class HelloWorldCommand {
         this.caption = caption;
     }
 
+    public void get() {
+        //Invalid getter
+    }
+
+    private String getFoo() {
+        //Invalid getter
+        return "";
+    }
+
     @Override
     public String toString() {
         return "HelloWorldCommand{" +

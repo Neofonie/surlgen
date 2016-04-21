@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @ControllerAdvice
@@ -50,12 +50,13 @@ public class UrlFactory {
         result.add(helloWorldControllerUrlFactory.fooUriString(1L, 2L, 3, "bla"));
         result.add(helloWorldController2UrlFactoryGenerated.getBookingUriString("foooo"));
         result.add(helloWorldController2UrlFactoryGenerated.findPetUriString("foo", "bar"));
-        result.add(helloWorldControllerUrlFactory.doWithDateUriString(new Date()));
+        result.add(helloWorldControllerUrlFactory.doWithDateUriString(LocalDate.now()));
 
         HelloWorldCommand command = new HelloWorldCommand();
         command.setId(25);
         command.setCaption("foobar");
         result.add(MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "doWithModel", new Object[]{command}).toUriString());
+        result.add(helloWorldControllerUrlFactory.doWithModelUriString(command));
         return result;
     }
 }

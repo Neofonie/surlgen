@@ -91,8 +91,10 @@ public class UrlFactoryServiceGenerator extends AbstractGenerator {
         private JMethod appendMvcUriComponentsBuilderMethod(String methodName, UrlMethod parameters) {
             JMethod urlMethod = definedClass.method(JMod.PUBLIC, UriComponentsBuilder.class, methodName);
             JBlock body = urlMethod.body();
-            JInvocation fromMethodName = createMvcUriComponentsBuilderInvocation(parameters, methodName, urlMethod);
-            body._return(fromMethodName);
+            JVar uriComponentsBuilder = body.decl(ClassWriter.ref(UriComponentsBuilder.class), "uriComponentsBuilder")
+                    .init(createMvcUriComponentsBuilderInvocation(parameters, methodName, urlMethod));
+            parameters.handleUriComponentsBuilderPostRequest(urlMethod, uriComponentsBuilder);
+            body._return(uriComponentsBuilder);
             return urlMethod;
         }
 

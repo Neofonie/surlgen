@@ -24,17 +24,61 @@
 
 package de.neofonie.surlgen.processor.core;
 
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JVar;
 import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import java.util.List;
 import java.util.logging.Logger;
 
 enum TypeEnum {
     URL_RELEVANT,
+    MODEL_ATTRIBUTE {
+        @Override
+        public void handleUriComponentsBuilderPostRequest(JMethod method, JVar uriComponentsBuilder, VariableElement variableElement) {
+
+            TypeMirror typeMirror = variableElement.asType();
+            if (typeMirror.getKind() == TypeKind.DECLARED) {
+                DeclaredType declaredType = (DeclaredType) typeMirror;
+                JVar param = method.param(ClassWriter.ref(declaredType.asElement().toString()), variableElement.getSimpleName().toString());
+                List<? extends Element> elements = declaredType.asElement().getEnclosedElements();
+                for (Element element : elements) {
+                    handleElement(method, uriComponentsBuilder, element, param);
+                }
+            }
+        }
+
+        private void handleElement(JMethod method, JVar uriComponentsBuilder, Element element, JVar param) {
+            if (!(element instanceof ExecutableElement)
+                    || !element.getSimpleName().toString().startsWith("get")) {
+                return;
+            }
+            ExecutableElement executableElement = (ExecutableElement) element;
+            if (!executableElement.getParameters().isEmpty()
+                    || executableElement.getReturnType().getKind() == TypeKind.VOID
+                    || !executableElement.getModifiers().contains(Modifier.PUBLIC)
+                    || executableElement.getModifiers().contains(Modifier.STATIC)) {
+                return;
+            }
+
+            String name = CamelCaseUtils.firstCharLowerCased(element.getSimpleName().toString().substring(3));
+
+//            doWithModel.queryParam("fooo", "bar", "blub");
+            method.body().invoke(uriComponentsBuilder, "queryParam").arg(name)
+                    .arg(param.invoke(executableElement.getSimpleName().toString()));
+
+        }
+    },
     NOT_SUPPORTED,
     OTHER;
 
@@ -49,8 +93,7 @@ enum TypeEnum {
         }
         //ModelAttribute is currently not implemented in MvcUriComponentsBuilder - so we cant support this
         if (variableElement.getAnnotation(ModelAttribute.class) != null) {
-            log.info("ModelAttribute currently isnt supported in MvcUriComponentsBuilder");
-            return NOT_SUPPORTED;
+            return MODEL_ATTRIBUTE;
         }
         //MatrixVariable is currently not implemented in MvcUriComponentsBuilder - so we cant support this
         if (variableElement.getAnnotation(MatrixVariable.class) != null) {
@@ -60,16 +103,10 @@ enum TypeEnum {
         return OTHER;
     }
 
-    static boolean isNotSupported(List<? extends VariableElement> parameters) {
-        for (VariableElement variableElement : parameters) {
-            if (getType(variableElement) == NOT_SUPPORTED) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isRelevantForUrl() {
+        return this == URL_RELEVANT || this == MODEL_ATTRIBUTE;
     }
 
-    public boolean isRelevantForUrl() {
-        return this == URL_RELEVANT;
+    public void handleUriComponentsBuilderPostRequest(JMethod method, JVar uriComponentsBuilder, VariableElement variableElement) {
     }
 }
