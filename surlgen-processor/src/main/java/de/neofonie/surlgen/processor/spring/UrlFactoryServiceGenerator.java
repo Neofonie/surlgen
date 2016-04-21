@@ -98,14 +98,17 @@ public class UrlFactoryServiceGenerator extends AbstractGenerator {
         private JMethod appendMvcUriComponentsBuilderMethod(String methodName, UrlMethod parameters) {
             JMethod urlMethod = definedClass.method(JMod.PUBLIC, UriComponentsBuilder.class, methodName);
             JBlock body = urlMethod.body();
+            JArray varArgArray = JExpr.newArray(ClassWriter.parseType("Object"));
             JVar uriComponentsBuilder = body.decl(ClassWriter.ref(UriComponentsBuilder.class), "uriComponentsBuilder")
-                    .init(createMvcUriComponentsBuilderInvocation(parameters, methodName, urlMethod));
-            parameters.handleUriComponentsBuilderPostRequest(urlMethod, uriComponentsBuilder);
+                    .init(createMvcUriComponentsBuilderInvocation(methodName, varArgArray));
+
+            parameters.handleUriComponentsInvocation(urlMethod, varArgArray, uriComponentsBuilder);
+
             body._return(uriComponentsBuilder);
             return urlMethod;
         }
 
-        private JInvocation createMvcUriComponentsBuilderInvocation(UrlMethod parameters, String methodName, JMethod urlMethod) {
+        private JInvocation createMvcUriComponentsBuilderInvocation(String methodName, JArray varArgArray) {
             AbstractJClass mvcUriComponentsBuilder = ClassWriter.ref(MvcUriComponentsBuilder.class);
             JInvocation fromMethodName = mvcUriComponentsBuilder.staticInvoke("fromMethodName");
             if (baseMvcUriComponentsMethod != null) {
@@ -113,7 +116,7 @@ public class UrlFactoryServiceGenerator extends AbstractGenerator {
             }
             fromMethodName.arg(ClassWriter.ref(name).dotclass());
             fromMethodName.arg(methodName);
-            fromMethodName.arg(parameters.createVarArgArray(urlMethod));
+            fromMethodName.arg(varArgArray);
             return fromMethodName;
         }
     }

@@ -60,30 +60,10 @@ public class UrlMethod {
         }
     }
 
-    public JArray createVarArgArray(JMethod urlMethod) {
-        AbstractJType objectArray = ClassWriter.parseType("Object");
-        JArray jArray = JExpr.newArray(objectArray);
-        appendVarArgArray(urlMethod, jArray);
-        return jArray;
-    }
-
-    private void appendVarArgArray(JMethod urlMethod, JArray jArray) {
+    public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
         for (VariableElement variableElement : parameters) {
             TypeEnum typeEnum = TypeEnum.getType(variableElement);
-            if (typeEnum == TypeEnum.URL_RELEVANT) {
-                AbstractJType type = ClassWriter.parseType(variableElement.asType().toString());
-                JVar param = urlMethod.param(type, variableElement.getSimpleName().toString());
-                jArray.add(param);
-            } else {
-                jArray.add(JExpr._null());
-            }
-        }
-    }
-
-    public void handleUriComponentsBuilderPostRequest(JMethod method, JVar uriComponentsBuilder) {
-        for (VariableElement variableElement : parameters) {
-            TypeEnum typeEnum = TypeEnum.getType(variableElement);
-            typeEnum.handleUriComponentsBuilderPostRequest(method, uriComponentsBuilder, variableElement);
+            typeEnum.handleUriComponentsInvocation(variableElement, urlMethod, varArgArray, uriComponentsBuilder);
         }
     }
 }

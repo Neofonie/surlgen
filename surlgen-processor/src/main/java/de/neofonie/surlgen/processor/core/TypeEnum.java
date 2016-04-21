@@ -24,9 +24,7 @@
 
 package de.neofonie.surlgen.processor.core;
 
-import com.helger.jcodemodel.JBlock;
-import com.helger.jcodemodel.JMethod;
-import com.helger.jcodemodel.JVar;
+import com.helger.jcodemodel.*;
 import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,24 +41,34 @@ import java.util.List;
 import java.util.logging.Logger;
 
 enum TypeEnum {
-    URL_RELEVANT,
+    URL_RELEVANT {
+        @Override
+        public void handleUriComponentsInvocation(VariableElement variableElement, JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
+
+            AbstractJType type = ClassWriter.parseType(variableElement.asType().toString());
+            JVar param = urlMethod.param(type, variableElement.getSimpleName().toString());
+            varArgArray.add(param);
+        }
+    },
     MODEL_ATTRIBUTE {
         @Override
-        public void handleUriComponentsBuilderPostRequest(JMethod method, JVar uriComponentsBuilder, VariableElement variableElement) {
+        public void handleUriComponentsInvocation(VariableElement variableElement, JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
 
+            varArgArray.add(JExpr._null());
             TypeMirror typeMirror = variableElement.asType();
             if (typeMirror.getKind() == TypeKind.DECLARED) {
                 DeclaredType declaredType = (DeclaredType) typeMirror;
-                JVar param = method.param(ClassWriter.ref(declaredType.asElement().toString()), variableElement.getSimpleName().toString());
-                JBlock block = method.body()._if(param.neNull())._then();
+                JVar param = urlMethod.param(ClassWriter.ref(declaredType.asElement().toString()), variableElement.getSimpleName().toString());
+                JBlock block = urlMethod.body()._if(param.neNull())._then();
                 List<? extends Element> elements = declaredType.asElement().getEnclosedElements();
+                JVar tempValue = block.decl(ClassWriter.ref(Object.class), "__tempValue");
                 for (Element element : elements) {
-                    handleElement(block, uriComponentsBuilder, element, param);
+                    handleElement(tempValue, block, uriComponentsBuilder, element, param);
                 }
             }
         }
 
-        private void handleElement(JBlock body, JVar uriComponentsBuilder, Element element, JVar param) {
+        private void handleElement(JVar tempValue, JBlock body, JVar uriComponentsBuilder, Element element, JVar param) {
             if (!(element instanceof ExecutableElement)
                     || !element.getSimpleName().toString().startsWith("get")) {
                 return;
@@ -75,16 +83,24 @@ enum TypeEnum {
 
             String name = CamelCaseUtils.firstCharLowerCased(element.getSimpleName().toString().substring(3));
 
-//            doWithModel.queryParam("fooo", "bar", "blub");
-            JVar var = body.decl(ClassWriter.ref(Object.class), name).init(param.invoke(executableElement.getSimpleName().toString()));
-            body._if(var.neNull())._then()
+            body.assign(tempValue, param.invoke(executableElement.getSimpleName().toString()));
+            body._if(tempValue.neNull())._then()
                     .invoke(uriComponentsBuilder, "queryParam").arg(name)
-                    .arg(var);
-
+                    .arg(tempValue);
         }
     },
-    NOT_SUPPORTED,
-    OTHER;
+    NOT_SUPPORTED {
+        @Override
+        public void handleUriComponentsInvocation(VariableElement variableElement, JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
+            varArgArray.add(JExpr._null());
+        }
+    },
+    OTHER {
+        @Override
+        public void handleUriComponentsInvocation(VariableElement variableElement, JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
+            varArgArray.add(JExpr._null());
+        }
+    };
 
     private static final Logger log = Logger.getLogger(TypeEnum.class.getCanonicalName());
 
@@ -111,6 +127,5 @@ enum TypeEnum {
         return this == URL_RELEVANT || this == MODEL_ATTRIBUTE;
     }
 
-    public void handleUriComponentsBuilderPostRequest(JMethod method, JVar uriComponentsBuilder, VariableElement variableElement) {
-    }
+    public abstract void handleUriComponentsInvocation(VariableElement variableElement, JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder);
 }
