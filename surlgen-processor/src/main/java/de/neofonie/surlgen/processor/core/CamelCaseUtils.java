@@ -24,7 +24,10 @@
 
 package de.neofonie.surlgen.processor.core;
 
-public class CamelCaseUtils {
+public final class CamelCaseUtils {
+
+    private CamelCaseUtils() {
+    }
 
     public static String firstCharLowerCased(String input) {
         if (input == null) {

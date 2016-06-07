@@ -69,7 +69,7 @@ public class UrlFunctionGenerator extends AbstractGenerator {
             }
             File directory = outputFile.getParentFile();
             if (!directory.exists() && !directory.mkdirs()) {
-                throw new IOException("Couldnt create " + directory.getAbsolutePath());
+                throw new IllegalArgumentException("Couldnt create " + directory.getAbsolutePath());
             }
             try (TldWriter tldWriter = new TldWriter(outputFile)) {
                 tldWriter.write(functionClassWriter.getMethods());

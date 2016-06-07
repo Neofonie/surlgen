@@ -48,7 +48,7 @@ public class UrlFactoryServiceWriter extends ClassWriter {
     private final JMethod baseMvcUriComponentsMethod;
     private final String name;
 
-    UrlFactoryServiceWriter(String name, JDefinedClass definedClass) {
+    private UrlFactoryServiceWriter(String name, JDefinedClass definedClass) {
         super(definedClass);
         this.name = name;
         baseMvcUriComponentsMethod = appendBaseMvcUriComponentsBuilderMethod();

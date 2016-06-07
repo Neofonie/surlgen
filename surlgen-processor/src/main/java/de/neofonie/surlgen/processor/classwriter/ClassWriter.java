@@ -50,7 +50,7 @@ public abstract class ClassWriter {
         this.definedClass = definedClass;
     }
 
-    public static JDefinedClass createClass(String sFullyQualifiedClassName) throws JClassAlreadyExistsException {
+    static JDefinedClass createClass(String sFullyQualifiedClassName) throws JClassAlreadyExistsException {
         JDefinedClass result = createdClasses.get(sFullyQualifiedClassName);
         if (result != null) {
             return result;
@@ -65,7 +65,7 @@ public abstract class ClassWriter {
         return codeModel.ref(clazz);
     }
 
-    static void build(@Nonnull AbstractCodeWriter out) throws IOException {
+    private static void build(@Nonnull AbstractCodeWriter out) throws IOException {
         codeModel.build(out);
     }
 
@@ -88,7 +88,7 @@ public abstract class ClassWriter {
         build(new FileCodeWriter(outputDir));
     }
 
-    public JDefinedClass getDefinedClass() {
+    JDefinedClass getDefinedClass() {
         return definedClass;
     }
 }

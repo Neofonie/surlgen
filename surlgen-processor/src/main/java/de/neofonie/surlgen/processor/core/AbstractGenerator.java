@@ -114,7 +114,7 @@ public abstract class AbstractGenerator extends AbstractProcessor {
             URI tempFile = processingEnv.getFiler().createSourceFile("a").toUri();
             outputDir = new File(tempFile).getParentFile();
             if (!outputDir.exists() && !outputDir.mkdirs()) {
-                throw new IOException("Couldnt create " + outputDir.getAbsolutePath());
+                throw new IllegalArgumentException("Couldnt create " + outputDir.getAbsolutePath());
             }
             if (log.isLoggable(Level.FINE)) {
                 log.fine("writing source code to: " + outputDir.getAbsolutePath());

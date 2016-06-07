@@ -42,11 +42,11 @@ import java.util.stream.Collectors;
 public class TldWriter implements Closeable {
 
     private XMLStreamWriter writer;
-    private StringWriter stringWriter;
+    private final StringWriter stringWriter;
     private final File outputFile;
     private final Set<String> writtenNames = new HashSet<>();
 
-    public TldWriter(File outputFile) throws IOException, XMLStreamException {
+    public TldWriter(File outputFile) throws XMLStreamException {
         stringWriter = new StringWriter();
         writer = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter);
         writer.writeStartDocument();
@@ -68,7 +68,7 @@ public class TldWriter implements Closeable {
         }
     }
 
-    public void write(JMethod method) {
+    private void write(JMethod method) {
         Preconditions.checkArgument(method.mods().isStatic());
         try {
             writer.writeStartElement("function");
