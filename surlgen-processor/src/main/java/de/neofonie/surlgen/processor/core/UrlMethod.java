@@ -25,6 +25,7 @@
 package de.neofonie.surlgen.processor.core;
 
 import com.helger.jcodemodel.*;
+import de.neofonie.surlgen.processor.classwriter.ClassWriter;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;

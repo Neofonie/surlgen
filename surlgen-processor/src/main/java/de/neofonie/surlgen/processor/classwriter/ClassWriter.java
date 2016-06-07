@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.core;
+package de.neofonie.surlgen.processor.classwriter;
 
 import com.google.common.base.Preconditions;
 import com.helger.jcodemodel.*;
@@ -38,13 +38,16 @@ public abstract class ClassWriter {
 
     private static final Map<String, JDefinedClass> createdClasses = new HashMap<>();
     private static JCodeModel codeModel;
+    final JDefinedClass definedClass;
 
     public static void init() {
         Preconditions.checkArgument(codeModel == null);
         codeModel = new JCodeModel();
     }
 
-    private ClassWriter() {
+    ClassWriter(JDefinedClass definedClass) {
+        Preconditions.checkNotNull(definedClass);
+        this.definedClass = definedClass;
     }
 
     public static JDefinedClass createClass(String sFullyQualifiedClassName) throws JClassAlreadyExistsException {
@@ -83,5 +86,9 @@ public abstract class ClassWriter {
 
     private static void writeSourceCode(File outputDir) throws IOException {
         build(new FileCodeWriter(outputDir));
+    }
+
+    public JDefinedClass getDefinedClass() {
+        return definedClass;
     }
 }

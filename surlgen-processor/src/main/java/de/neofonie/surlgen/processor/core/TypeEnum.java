@@ -25,6 +25,7 @@
 package de.neofonie.surlgen.processor.core;
 
 import com.helger.jcodemodel.*;
+import de.neofonie.surlgen.processor.classwriter.ClassWriter;
 import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -25,8 +25,8 @@
 package de.neofonie.surlgen.processor.spring;
 
 import com.helger.jcodemodel.*;
+import de.neofonie.surlgen.processor.classwriter.ClassWriter;
 import de.neofonie.surlgen.processor.core.AbstractGenerator;
-import de.neofonie.surlgen.processor.core.ClassWriter;
 import de.neofonie.surlgen.processor.core.Options;
 import de.neofonie.surlgen.processor.core.UrlMethod;
 import org.springframework.stereotype.Service;
