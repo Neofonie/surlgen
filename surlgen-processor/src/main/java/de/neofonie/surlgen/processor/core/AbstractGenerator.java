@@ -25,6 +25,7 @@
 package de.neofonie.surlgen.processor.core;
 
 import de.neofonie.surlgen.processor.classwriter.ClassWriter;
+import de.neofonie.surlgen.processor.core.data.UrlMethod;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.processing.AbstractProcessor;

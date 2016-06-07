@@ -26,7 +26,7 @@ package de.neofonie.surlgen.processor.spring;
 
 import de.neofonie.surlgen.processor.classwriter.UrlFactoryServiceWriter;
 import de.neofonie.surlgen.processor.core.AbstractGenerator;
-import de.neofonie.surlgen.processor.core.UrlMethod;
+import de.neofonie.surlgen.processor.core.data.UrlMethod;
 
 public class UrlFactoryServiceGenerator extends AbstractGenerator {
 

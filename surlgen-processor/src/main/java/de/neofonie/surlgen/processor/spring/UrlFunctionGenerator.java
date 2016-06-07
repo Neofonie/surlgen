@@ -29,7 +29,7 @@ import de.neofonie.surlgen.processor.classwriter.FunctionClassWriter;
 import de.neofonie.surlgen.processor.core.AbstractGenerator;
 import de.neofonie.surlgen.processor.core.Options;
 import de.neofonie.surlgen.processor.core.TldWriter;
-import de.neofonie.surlgen.processor.core.UrlMethod;
+import de.neofonie.surlgen.processor.core.data.UrlMethod;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.File;

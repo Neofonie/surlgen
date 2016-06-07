@@ -41,7 +41,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.List;
 import java.util.logging.Logger;
 
-enum TypeEnum {
+public enum TypeEnum {
     URL_RELEVANT {
         @Override
         public void handleUriComponentsInvocation(VariableElement variableElement, JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
@@ -105,7 +105,7 @@ enum TypeEnum {
 
     private static final Logger log = Logger.getLogger(TypeEnum.class.getCanonicalName());
 
-    static TypeEnum getType(VariableElement variableElement) {
+    public static TypeEnum getType(VariableElement variableElement) {
         if (variableElement.getAnnotation(RequestParam.class) != null) {
             return URL_RELEVANT;
         }

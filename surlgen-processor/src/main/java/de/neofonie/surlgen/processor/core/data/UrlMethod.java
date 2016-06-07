@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.core;
+package de.neofonie.surlgen.processor.core.data;
 
 import com.helger.jcodemodel.*;
 import de.neofonie.surlgen.processor.classwriter.ClassWriter;
+import de.neofonie.surlgen.processor.core.TypeEnum;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;

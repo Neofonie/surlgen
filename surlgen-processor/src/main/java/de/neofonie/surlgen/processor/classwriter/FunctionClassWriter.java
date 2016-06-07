@@ -27,7 +27,7 @@ package de.neofonie.surlgen.processor.classwriter;
 import com.helger.jcodemodel.*;
 import de.neofonie.surlgen.processor.core.CamelCaseUtils;
 import de.neofonie.surlgen.processor.core.Options;
-import de.neofonie.surlgen.processor.core.UrlMethod;
+import de.neofonie.surlgen.processor.core.data.UrlMethod;
 import de.neofonie.surlgen.processor.spring.UrlFunctionGenerator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
