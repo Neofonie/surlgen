@@ -22,19 +22,22 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.spring;
+package de.neofonie.surlgen.processor.util;
 
-import de.neofonie.surlgen.processor.classwriter.UrlFactoryServiceWriter;
-import de.neofonie.surlgen.processor.core.AbstractGenerator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
-import javax.lang.model.element.ExecutableElement;
+public class NamedInstances<T> {
 
-public class UrlFactoryServiceGenerator extends AbstractGenerator {
+    private final Map<String, T> map = new HashMap<>();
+    private final Function<? super String, ? extends T> function;
 
-    @Override
-    protected void handleElement(ExecutableElement elem) {
-        final String name = elem.getEnclosingElement().toString();
-        final UrlFactoryServiceWriter urlFactoryServiceWriter = UrlFactoryServiceWriter.create(name);
-        urlFactoryServiceWriter.appendMethod(elem);
+    public NamedInstances(Function<? super String, ? extends T> function) {
+        this.function = function;
+    }
+
+    public T getInstance(String name) {
+        return map.computeIfAbsent(name, function);
     }
 }
