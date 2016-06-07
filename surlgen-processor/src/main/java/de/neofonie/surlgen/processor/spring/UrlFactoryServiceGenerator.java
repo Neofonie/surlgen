@@ -26,15 +26,14 @@ package de.neofonie.surlgen.processor.spring;
 
 import de.neofonie.surlgen.processor.classwriter.UrlFactoryServiceWriter;
 import de.neofonie.surlgen.processor.core.AbstractGenerator;
-
-import javax.lang.model.element.ExecutableElement;
+import de.neofonie.surlgen.processor.core.UrlMethod;
 
 public class UrlFactoryServiceGenerator extends AbstractGenerator {
 
     @Override
-    protected void handleElement(ExecutableElement elem) {
-        final String name = elem.getEnclosingElement().toString();
+    protected void handleElement(UrlMethod urlMethod) {
+        final String name = urlMethod.getClazz().toString();
         final UrlFactoryServiceWriter urlFactoryServiceWriter = UrlFactoryServiceWriter.create(name);
-        urlFactoryServiceWriter.appendMethod(elem);
+        urlFactoryServiceWriter.appendMethod(urlMethod);
     }
 }

@@ -31,7 +31,6 @@ import de.neofonie.surlgen.processor.core.Options;
 import de.neofonie.surlgen.processor.core.TldWriter;
 import de.neofonie.surlgen.processor.core.UrlMethod;
 
-import javax.lang.model.element.ExecutableElement;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
@@ -43,14 +42,14 @@ public class UrlFunctionGenerator extends AbstractGenerator {
     private FunctionClassWriter functionClassWriter;
 
     @Override
-    protected void handleElement(ExecutableElement elem) {
+    protected void handleElement(UrlMethod urlMethod) {
 
         try {
             functionClassWriter = FunctionClassWriter.createFunctionClassWriter();
         } catch (JClassAlreadyExistsException e) {
             throw new IllegalStateException(e);
         }
-        UrlMethod urlMethod = new UrlMethod(elem);
+
         functionClassWriter.appendUriStringMethod(urlMethod);
     }
 

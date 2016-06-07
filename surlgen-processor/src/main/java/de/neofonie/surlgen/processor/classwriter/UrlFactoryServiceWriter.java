@@ -33,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.lang.model.element.ExecutableElement;
 import java.util.function.Function;
 
 public class UrlFactoryServiceWriter extends ClassWriter {
@@ -85,11 +84,10 @@ public class UrlFactoryServiceWriter extends ClassWriter {
         }
     }
 
-    public void appendMethod(ExecutableElement method) {
-        UrlMethod parameters = new UrlMethod(method);
+    public void appendMethod(UrlMethod urlMethod) {
 
-        JMethod mvcUriComponentsBuilderMethod = appendMvcUriComponentsBuilderMethod(parameters.getMethodName(), parameters);
-        appendUriStringMethod(parameters.getMethodName(), parameters, mvcUriComponentsBuilderMethod);
+        JMethod mvcUriComponentsBuilderMethod = appendMvcUriComponentsBuilderMethod(urlMethod.getMethodName(), urlMethod);
+        appendUriStringMethod(urlMethod.getMethodName(), urlMethod, mvcUriComponentsBuilderMethod);
     }
 
     private void appendUriStringMethod(String methodName, UrlMethod parameters, JMethod mvcUriComponentsBuilderMethod) {

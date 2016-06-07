@@ -81,7 +81,8 @@ public abstract class AbstractGenerator extends AbstractProcessor {
             ElementKind elementKind = elem.getKind();
 
             if (elementKind == ElementKind.METHOD) {
-                handleElement((ExecutableElement) elem);
+                UrlMethod urlMethod = new UrlMethod((ExecutableElement) elem);
+                handleElement(urlMethod);
             }
         }
 
@@ -103,7 +104,7 @@ public abstract class AbstractGenerator extends AbstractProcessor {
         }
     }
 
-    protected abstract void handleElement(ExecutableElement elem);
+    protected abstract void handleElement(UrlMethod urlMethod);
 
     File getOutputDir() {
         try {
