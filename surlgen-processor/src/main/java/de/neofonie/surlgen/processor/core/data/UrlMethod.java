@@ -26,21 +26,21 @@ package de.neofonie.surlgen.processor.core.data;
 
 import com.helger.jcodemodel.*;
 import de.neofonie.surlgen.processor.classwriter.ClassWriter;
-import de.neofonie.surlgen.processor.core.TypeEnum;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
-import java.util.List;
+import java.util.ArrayList;
 
 public class UrlMethod {
 
-    private final List<? extends VariableElement> parameters;
+    private final ArrayList<Parameter> parameters;
     private final ExecutableElement method;
 
     public UrlMethod(ExecutableElement method) {
         this.method = method;
-        parameters = method.getParameters();
+        parameters = Parameter.createParameters(method.getParameters());
+//        parameters = method.getParameters();
     }
 
     public Element getClazz() {
@@ -52,9 +52,9 @@ public class UrlMethod {
     }
 
     public void appendParams(JMethod uriStringMethod, JInvocation invocation) {
-        for (VariableElement variableElement : parameters) {
-            TypeEnum typeEnum = TypeEnum.getType(variableElement);
-            if (typeEnum.isRelevantForUrl()) {
+        for (Parameter parameter : parameters) {
+            final VariableElement variableElement = parameter.getVariableElement();
+            if (parameter.isRelevantForUrl()) {
                 AbstractJType type = ClassWriter.parseType(variableElement.asType().toString());
                 JVar param = uriStringMethod.param(type, variableElement.getSimpleName().toString());
                 invocation.arg(param);
@@ -63,9 +63,8 @@ public class UrlMethod {
     }
 
     public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
-        for (VariableElement variableElement : parameters) {
-            TypeEnum typeEnum = TypeEnum.getType(variableElement);
-            typeEnum.handleUriComponentsInvocation(variableElement, urlMethod, varArgArray, uriComponentsBuilder);
+        for (Parameter parameter : parameters) {
+            parameter.handleUriComponentsInvocation(urlMethod, varArgArray, uriComponentsBuilder);
         }
     }
 }
