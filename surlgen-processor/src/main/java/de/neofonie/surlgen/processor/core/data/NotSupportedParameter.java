@@ -28,12 +28,14 @@ import com.helger.jcodemodel.JArray;
 import com.helger.jcodemodel.JExpr;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
+import de.neofonie.surlgen.processor.util.LangModelUtil;
 
 import javax.lang.model.element.VariableElement;
 
 class NotSupportedParameter extends Parameter {
-    NotSupportedParameter(VariableElement variableElement) {
-        super(variableElement);
+
+    protected NotSupportedParameter(VariableElement variableElement, LangModelUtil langModelUtil) {
+        super(variableElement, langModelUtil);
     }
 
     @Override

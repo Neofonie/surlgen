@@ -24,7 +24,7 @@
 
 package de.neofonie.surlgen.processor.spring;
 
-public class HelloWorldCommand {
+public class HelloWorldCommand extends HallaWorldCommand {
 
     private int id;
     private String caption;

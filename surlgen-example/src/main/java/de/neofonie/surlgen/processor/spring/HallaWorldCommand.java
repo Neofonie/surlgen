@@ -22,31 +22,13 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.core.data;
+package de.neofonie.surlgen.processor.spring;
 
-import com.helger.jcodemodel.JArray;
-import com.helger.jcodemodel.JMethod;
-import com.helger.jcodemodel.JVar;
-import de.neofonie.surlgen.processor.util.LangModelUtil;
+public class HallaWorldCommand {
 
-import javax.lang.model.element.VariableElement;
+    private String halla = "halla";
 
-class UrlRelevantParameter extends Parameter {
-
-    protected UrlRelevantParameter(VariableElement variableElement, LangModelUtil langModelUtil) {
-        super(variableElement, langModelUtil);
+    public String getHalla() {
+        return halla;
     }
-
-    @Override
-    public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
-
-        JVar param = appendParamToMethod(urlMethod);
-        varArgArray.add(param);
-    }
-
-    @Override
-    public boolean isRelevantForUrl() {
-        return true;
-    }
-
 }

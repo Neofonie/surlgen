@@ -81,11 +81,11 @@ public class UrlFactoryServiceGeneratorTest {
 
         assertEquals("http://localhost/doWithModel", testExampleControllerUrlFactory.doWithModelUriString(null));
         HelloWorldCommand command = new HelloWorldCommand();
-        assertEquals("http://localhost/doWithModel?id=0", testExampleControllerUrlFactory.doWithModelUriString(command));
+        assertEquals("http://localhost/doWithModel?id=0&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
         command.setId(25);
-        assertEquals("http://localhost/doWithModel?id=25", testExampleControllerUrlFactory.doWithModelUriString(command));
+        assertEquals("http://localhost/doWithModel?id=25&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
         command.setCaption("foobar");
-        assertEquals("http://localhost/doWithModel?id=25&caption=foobar", testExampleControllerUrlFactory.doWithModelUriString(command));
+        assertEquals("http://localhost/doWithModel?id=25&caption=foobar&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
 
         UriComponentsBuilder doWithModel = MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "doWithModel", new Object[]{command});
         assertEquals("http://localhost/doWithModel", doWithModel.toUriString());

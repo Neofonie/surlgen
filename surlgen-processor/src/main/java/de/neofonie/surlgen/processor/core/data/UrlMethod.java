@@ -24,12 +24,14 @@
 
 package de.neofonie.surlgen.processor.core.data;
 
-import com.helger.jcodemodel.*;
-import de.neofonie.surlgen.processor.classwriter.ClassWriter;
+import com.helger.jcodemodel.JArray;
+import com.helger.jcodemodel.JInvocation;
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JVar;
+import de.neofonie.surlgen.processor.util.LangModelUtil;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.VariableElement;
 import java.util.ArrayList;
 
 public class UrlMethod {
@@ -37,9 +39,9 @@ public class UrlMethod {
     private final ArrayList<Parameter> parameters;
     private final ExecutableElement method;
 
-    public UrlMethod(ExecutableElement method) {
+    public UrlMethod(ExecutableElement method, LangModelUtil langModelUtil) {
         this.method = method;
-        parameters = Parameter.createParameters(method.getParameters());
+        parameters = Parameter.createParameters(method.getParameters(), langModelUtil);
 //        parameters = method.getParameters();
     }
 
@@ -53,10 +55,8 @@ public class UrlMethod {
 
     public void appendParams(JMethod uriStringMethod, JInvocation invocation) {
         for (Parameter parameter : parameters) {
-            final VariableElement variableElement = parameter.getVariableElement();
             if (parameter.isRelevantForUrl()) {
-                AbstractJType type = ClassWriter.parseType(variableElement.asType().toString());
-                JVar param = uriStringMethod.param(type, variableElement.getSimpleName().toString());
+                JVar param = parameter.appendParamToMethod(uriStringMethod);
                 invocation.arg(param);
             }
         }

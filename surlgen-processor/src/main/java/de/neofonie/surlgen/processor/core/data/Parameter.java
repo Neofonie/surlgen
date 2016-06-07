@@ -24,9 +24,12 @@
 
 package de.neofonie.surlgen.processor.core.data;
 
+import com.helger.jcodemodel.AbstractJType;
 import com.helger.jcodemodel.JArray;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
+import de.neofonie.surlgen.processor.classwriter.ClassWriter;
+import de.neofonie.surlgen.processor.util.LangModelUtil;
 import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,44 +44,47 @@ public abstract class Parameter {
 
     private static final Logger log = Logger.getLogger(Parameter.class.getCanonicalName());
     protected final VariableElement variableElement;
+    protected final LangModelUtil langModelUtil;
 
-    protected Parameter(VariableElement variableElement) {
+    protected Parameter(VariableElement variableElement, LangModelUtil langModelUtil) {
         this.variableElement = variableElement;
+        this.langModelUtil = langModelUtil;
     }
 
-    public static ArrayList<Parameter> createParameters(List<? extends VariableElement> parameters) {
+    public static ArrayList<Parameter> createParameters(List<? extends VariableElement> parameters, LangModelUtil langModelUtil) {
         final ArrayList<Parameter> result = new ArrayList<>();
         for (VariableElement variableElement : parameters) {
-            result.add(createParameters(variableElement));
+            result.add(createParameters(variableElement, langModelUtil));
         }
         return result;
     }
 
-    public static Parameter createParameters(VariableElement variableElement) {
+    public static Parameter createParameters(VariableElement variableElement, LangModelUtil langModelUtil) {
         if (variableElement.getAnnotation(RequestParam.class) != null) {
-            return new UrlRelevantParameter(variableElement);
+            return new UrlRelevantParameter(variableElement, langModelUtil);
         }
         if (variableElement.getAnnotation(PathVariable.class) != null) {
-            return new UrlRelevantParameter(variableElement);
+            return new UrlRelevantParameter(variableElement, langModelUtil);
         }
         //ModelAttribute is currently not implemented in MvcUriComponentsBuilder - so we cant support this
         if (variableElement.getAnnotation(ModelAttribute.class) != null) {
-            return new ModelAttributeParameter(variableElement);
+            return new ModelAttributeParameter(variableElement, langModelUtil);
         }
         //MatrixVariable is currently not implemented in MvcUriComponentsBuilder - so we cant support this
         if (variableElement.getAnnotation(MatrixVariable.class) != null) {
             log.info("MatrixVariable currently isnt supported in MvcUriComponentsBuilder");
-            return new NotSupportedParameter(variableElement);
+            return new NotSupportedParameter(variableElement, langModelUtil);
         }
-        return new OtherParameter(variableElement);
-    }
-
-    public VariableElement getVariableElement() {
-        return variableElement;
+        return new OtherParameter(variableElement, langModelUtil);
     }
 
     public abstract boolean isRelevantForUrl();
 
     public abstract void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder);
+
+    public final JVar appendParamToMethod(JMethod method) {
+        AbstractJType type = ClassWriter.parseType(variableElement.asType().toString());
+        return method.param(type, variableElement.getSimpleName().toString());
+    }
 
 }

@@ -26,6 +26,7 @@ package de.neofonie.surlgen.processor.core;
 
 import de.neofonie.surlgen.processor.classwriter.ClassWriter;
 import de.neofonie.surlgen.processor.core.data.UrlMethod;
+import de.neofonie.surlgen.processor.util.LangModelUtil;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -74,6 +75,7 @@ public abstract class AbstractGenerator extends AbstractProcessor {
         }
         ClassWriter.init();
 
+        LangModelUtil langModelUtil = new LangModelUtil(processingEnv);
         for (Element elem : roundEnv.getElementsAnnotatedWith(RequestMapping.class)) {
             if (log.isLoggable(Level.FINE)) {
                 log.fine("annotation found in " + elem);
@@ -82,7 +84,7 @@ public abstract class AbstractGenerator extends AbstractProcessor {
             ElementKind elementKind = elem.getKind();
 
             if (elementKind == ElementKind.METHOD) {
-                UrlMethod urlMethod = new UrlMethod((ExecutableElement) elem);
+                UrlMethod urlMethod = new UrlMethod((ExecutableElement) elem, langModelUtil);
                 handleElement(urlMethod);
             }
         }

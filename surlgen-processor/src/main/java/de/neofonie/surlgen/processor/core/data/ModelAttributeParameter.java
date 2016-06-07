@@ -24,22 +24,24 @@
 
 package de.neofonie.surlgen.processor.core.data;
 
+import com.google.common.base.Preconditions;
 import com.helger.jcodemodel.*;
 import de.neofonie.surlgen.processor.classwriter.ClassWriter;
 import de.neofonie.surlgen.processor.core.CamelCaseUtils;
+import de.neofonie.surlgen.processor.util.LangModelUtil;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
 class ModelAttributeParameter extends Parameter {
-    ModelAttributeParameter(VariableElement variableElement) {
-        super(variableElement);
+
+    protected ModelAttributeParameter(VariableElement variableElement, LangModelUtil langModelUtil) {
+        super(variableElement, langModelUtil);
     }
 
     @Override
@@ -47,30 +49,30 @@ class ModelAttributeParameter extends Parameter {
 
         varArgArray.add(JExpr._null());
         TypeMirror typeMirror = variableElement.asType();
-        if (typeMirror.getKind() == TypeKind.DECLARED) {
-            DeclaredType declaredType = (DeclaredType) typeMirror;
-            JVar param = urlMethod.param(ClassWriter.ref(declaredType.asElement().toString()), variableElement.getSimpleName().toString());
-            JBlock block = urlMethod.body()._if(param.neNull())._then();
-            List<? extends Element> elements = declaredType.asElement().getEnclosedElements();
-            JVar tempValue = block.decl(ClassWriter.ref(Object.class), "__tempValue");
-            for (Element element : elements) {
-                handleElement(tempValue, block, uriComponentsBuilder, element, param);
-            }
+
+        final Element elementType = LangModelUtil.convert(typeMirror);
+        JVar param = urlMethod.param(ClassWriter.ref(elementType.toString()), variableElement.getSimpleName().toString());
+        JBlock block = urlMethod.body()._if(param.neNull())._then();
+        JVar tempValue = block.decl(ClassWriter.ref(Object.class), "__tempValue");
+
+        final List<? extends Element> getter = langModelUtil.extractGetterForFields(typeMirror);
+
+        for (Element element : getter) {
+            handleElement(tempValue, block, uriComponentsBuilder, element, param);
         }
     }
 
     private void handleElement(JVar tempValue, JBlock body, JVar uriComponentsBuilder, Element element, JVar param) {
-        if (!(element instanceof ExecutableElement)
-                || !element.getSimpleName().toString().startsWith("get")) {
-            return;
-        }
+        Preconditions.checkArgument(element instanceof ExecutableElement);
+        Preconditions.checkArgument(element.getSimpleName().toString().startsWith("get"));
+
+
         ExecutableElement executableElement = (ExecutableElement) element;
-        if (!executableElement.getParameters().isEmpty()
-                || executableElement.getReturnType().getKind() == TypeKind.VOID
-                || !executableElement.getModifiers().contains(Modifier.PUBLIC)
-                || executableElement.getModifiers().contains(Modifier.STATIC)) {
-            return;
-        }
+
+        Preconditions.checkArgument(executableElement.getParameters().isEmpty());
+        Preconditions.checkArgument(executableElement.getReturnType().getKind() != TypeKind.VOID);
+        Preconditions.checkArgument(executableElement.getModifiers().contains(Modifier.PUBLIC));
+        Preconditions.checkArgument(!executableElement.getModifiers().contains(Modifier.STATIC));
 
         String name = CamelCaseUtils.firstCharLowerCased(element.getSimpleName().toString().substring(3));
 
@@ -79,6 +81,11 @@ class ModelAttributeParameter extends Parameter {
                 .invoke(uriComponentsBuilder, "queryParam").arg(name)
                 .arg(tempValue);
     }
+
+    private Element convert(TypeMirror typeMirror) {
+        return LangModelUtil.convert(typeMirror);
+    }
+
 
     @Override
     public boolean isRelevantForUrl() {
