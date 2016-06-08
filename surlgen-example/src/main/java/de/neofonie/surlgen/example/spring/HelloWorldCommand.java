@@ -31,6 +31,7 @@ public class HelloWorldCommand extends HallaWorldCommand {
     private int id;
     private String caption;
     private List<String> fooo;
+    private String[] stringArray;
 
     public int getId() {
         return id;
@@ -63,6 +64,14 @@ public class HelloWorldCommand extends HallaWorldCommand {
 
     public List<String> getFooo() {
         return fooo;
+    }
+
+    public String[] getStringArray() {
+        return stringArray;
+    }
+
+    public void setStringArray(String[] stringArray) {
+        this.stringArray = stringArray;
     }
 
     @Override

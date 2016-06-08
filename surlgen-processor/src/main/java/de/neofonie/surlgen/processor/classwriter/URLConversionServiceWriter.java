@@ -54,6 +54,7 @@ public class URLConversionServiceWriter extends ClassWriter {
     //    private final JFieldVar conversionService;
     private final JMethod addQueryParamMethodObject;
     private final JMethod addQueryParamMethodCollection;
+    private final JMethod addQueryParamMethodArray;
 //    private addQueryParamMethod;
 
     private URLConversionServiceWriter(JDefinedClass definedClass) {
@@ -62,6 +63,7 @@ public class URLConversionServiceWriter extends ClassWriter {
 //        conversionService.annotate(Autowired.class);
         addQueryParamMethodObject = createAddQueryParamMethodObject(definedClass);
         addQueryParamMethodCollection = createAddQueryParamMethodCollection(definedClass, addQueryParamMethodObject);
+        addQueryParamMethodArray = createAddQueryParamMethodArray(definedClass, addQueryParamMethodObject);
     }
 
     public static URLConversionServiceWriter getInstance() {
@@ -73,6 +75,8 @@ public class URLConversionServiceWriter extends ClassWriter {
 
         if (returnType.getKind().isPrimitive()) {
             body.invoke(urlConversionService, addQueryParamMethodObject).arg(uriComponentsBuilder).arg(name).arg(var);
+        } else if (returnType.getKind() == TypeKind.ARRAY) {
+            body.invoke(urlConversionService, addQueryParamMethodArray).arg(uriComponentsBuilder).arg(name).arg(var);
         } else if (returnType.getKind() == TypeKind.DECLARED) {
             DeclaredType declaredType = (DeclaredType) returnType;
             if (langModelUtil.isOfType(declaredType, Collection.class)) {
@@ -111,4 +115,20 @@ public class URLConversionServiceWriter extends ClassWriter {
 
         return addQueryParamMethod;
     }
+
+    private JMethod createAddQueryParamMethodArray(JDefinedClass definedClass, JMethod addQueryParamMethodObject) {
+        JMethod addQueryParamMethod = definedClass.method(JMod.PUBLIC, JPrimitiveType.VOID, "addQueryParamArray");
+        final JVar uriComponentsBuilder1 = addQueryParamMethod.param(UriComponentsBuilder.class, "uriComponentsBuilder");
+        final JVar name = addQueryParamMethod.param(String.class, "name");
+        final AbstractJClass objectClass = ref(Object.class);
+        final JVar array = addQueryParamMethod.param(objectClass.array(), "array");
+        final JBlock mbody = addQueryParamMethod.body();
+        mbody._if(array.eqNull())._then()._return();
+
+        final JForEach forEach = mbody.forEach(ref(Object.class), "value", array);
+        forEach.body().invoke(addQueryParamMethodObject).arg(uriComponentsBuilder1).arg(name).arg(forEach.var());
+
+        return addQueryParamMethod;
+    }
+
 }

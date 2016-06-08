@@ -108,4 +108,22 @@ public class UrlFactoryServiceGeneratorTest {
         assertEquals("http://localhost/hotels/%7Bhotel%7D/pets/petId",
                 MvcUriComponentsBuilder.fromMethodName(HelloWorldController2.class, "findPet2", new Object[]{"petId", 2}).toUriString());
     }
+
+    @Test
+    public void testCollections() throws Exception {
+
+        HelloWorldCommand command = new HelloWorldCommand();
+        command.setFooo(Arrays.asList("foo", "bar"));
+        assertEquals("http://localhost/doWithModel?id=0&fooo=foo&fooo=bar&halla=halla",
+                testExampleControllerUrlFactory.doWithModelUriString(command));
+    }
+
+    @Test
+    public void testArrays() throws Exception {
+
+        HelloWorldCommand command = new HelloWorldCommand();
+        command.setStringArray(new String[]{"oink", "bla"});
+        assertEquals("http://localhost/doWithModel?id=0&stringArray=oink&stringArray=bla&halla=halla",
+                testExampleControllerUrlFactory.doWithModelUriString(command));
+    }
 }
