@@ -28,6 +28,7 @@ import com.helger.jcodemodel.JArray;
 import com.helger.jcodemodel.JInvocation;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
+import de.neofonie.surlgen.processor.classwriter.UrlFactoryServiceWriter;
 import de.neofonie.surlgen.processor.util.LangModelUtil;
 
 import javax.lang.model.element.Element;
@@ -62,9 +63,10 @@ public class UrlMethod {
         }
     }
 
-    public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
+    public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder,
+                                              UrlFactoryServiceWriter urlFactoryServiceWriter) {
         for (Parameter parameter : parameters) {
-            parameter.handleUriComponentsInvocation(urlMethod, varArgArray, uriComponentsBuilder);
+            parameter.handleUriComponentsInvocation(urlMethod, varArgArray, uriComponentsBuilder, urlFactoryServiceWriter);
         }
     }
 }

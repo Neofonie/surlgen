@@ -22,23 +22,14 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.spring;
+package de.neofonie.surlgen.example.spring;
 
-public class Account {
-    private long value;
+public class HallaWorldCommand {
 
-    public long getValue() {
-        return value;
+    private String halla = "halla";
+
+    public String getHalla() {
+        return halla;
     }
 
-    public void setValue(long value) {
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "value=" + value +
-                '}';
-    }
 }

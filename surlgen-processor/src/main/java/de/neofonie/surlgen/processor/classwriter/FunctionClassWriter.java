@@ -29,6 +29,7 @@ import de.neofonie.surlgen.processor.core.CamelCaseUtils;
 import de.neofonie.surlgen.processor.core.Options;
 import de.neofonie.surlgen.processor.core.data.UrlMethod;
 import de.neofonie.surlgen.processor.spring.UrlFunctionGenerator;
+import de.neofonie.surlgen.processor.util.SingletonInstance;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestAttributes;
@@ -42,10 +43,22 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class FunctionClassWriter extends ClassWriter {
 
-    private static FunctionClassWriter instance = null;
+    private static SingletonInstance<FunctionClassWriter> instance = new SingletonInstance<>(new Supplier<FunctionClassWriter>() {
+        @Override
+        public FunctionClassWriter get() {
+            try {
+                JDefinedClass definedClass = ClassWriter.createClass(Options.getValue(Options.OptionEnum.FunctionClassName));
+                definedClass.javadoc().add("Generated with " + UrlFunctionGenerator.class.getCanonicalName());
+                return new FunctionClassWriter(definedClass);
+            } catch (JClassAlreadyExistsException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+    });
     private final JMethod serviceMethod;
     private final List<JMethod> methods = new ArrayList<>();
 
@@ -55,14 +68,7 @@ public class FunctionClassWriter extends ClassWriter {
     }
 
     public static synchronized FunctionClassWriter createFunctionClassWriter() throws JClassAlreadyExistsException {
-        if (instance != null) {
-            return instance;
-        }
-        JDefinedClass definedClass = ClassWriter.createClass(Options.getValue(Options.OptionEnum.FunctionClassName));
-        definedClass.javadoc().add("Generated with " + UrlFunctionGenerator.class.getCanonicalName());
-        instance = new FunctionClassWriter(definedClass);
-
-        return instance;
+        return instance.getInstance();
     }
 
     private JMethod appendGetServiceMethod() {

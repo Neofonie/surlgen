@@ -31,7 +31,8 @@
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <mvc:annotation-driven/>
-    <context:component-scan base-package="de.neofonie.surlgen.processor.spring"/>
+    <context:component-scan base-package="de.neofonie.surlgen.example"/>
+    <context:component-scan base-package="de.neofonie.surlgen.generated"/>
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/jsp/"/>

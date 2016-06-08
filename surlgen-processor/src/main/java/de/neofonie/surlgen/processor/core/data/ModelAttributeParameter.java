@@ -27,6 +27,8 @@ package de.neofonie.surlgen.processor.core.data;
 import com.google.common.base.Preconditions;
 import com.helger.jcodemodel.*;
 import de.neofonie.surlgen.processor.classwriter.ClassWriter;
+import de.neofonie.surlgen.processor.classwriter.URLConversionServiceWriter;
+import de.neofonie.surlgen.processor.classwriter.UrlFactoryServiceWriter;
 import de.neofonie.surlgen.processor.core.CamelCaseUtils;
 import de.neofonie.surlgen.processor.util.LangModelUtil;
 
@@ -45,7 +47,8 @@ class ModelAttributeParameter extends Parameter {
     }
 
     @Override
-    public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
+    public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder,
+                                              UrlFactoryServiceWriter urlFactoryServiceWriter) {
 
         varArgArray.add(JExpr._null());
         TypeMirror typeMirror = variableElement.asType();
@@ -53,22 +56,21 @@ class ModelAttributeParameter extends Parameter {
         final Element elementType = LangModelUtil.convert(typeMirror);
         JVar param = urlMethod.param(ClassWriter.ref(elementType.toString()), variableElement.getSimpleName().toString());
         JBlock block = urlMethod.body()._if(param.neNull())._then();
-        JVar tempValue = block.decl(ClassWriter.ref(Object.class), "__tempValue");
 
         final List<? extends Element> getter = langModelUtil.extractGetterForFields(typeMirror);
 
         for (Element element : getter) {
-            handleElement(tempValue, block, uriComponentsBuilder, element, param);
+            handleElement(block, uriComponentsBuilder, element, param, urlFactoryServiceWriter);
         }
     }
 
-    private void handleElement(JVar tempValue, JBlock body, JVar uriComponentsBuilder, Element element, JVar param) {
+    private void handleElement(JBlock body, JVar uriComponentsBuilder, Element element, JVar param,
+                               UrlFactoryServiceWriter urlFactoryServiceWriter) {
+
         Preconditions.checkArgument(element instanceof ExecutableElement);
         Preconditions.checkArgument(element.getSimpleName().toString().startsWith("get"));
 
-
         ExecutableElement executableElement = (ExecutableElement) element;
-
         Preconditions.checkArgument(executableElement.getParameters().isEmpty());
         Preconditions.checkArgument(executableElement.getReturnType().getKind() != TypeKind.VOID);
         Preconditions.checkArgument(executableElement.getModifiers().contains(Modifier.PUBLIC));
@@ -76,16 +78,20 @@ class ModelAttributeParameter extends Parameter {
 
         String name = CamelCaseUtils.firstCharLowerCased(element.getSimpleName().toString().substring(3));
 
-        body.assign(tempValue, param.invoke(executableElement.getSimpleName().toString()));
-        body._if(tempValue.neNull())._then()
-                .invoke(uriComponentsBuilder, "queryParam").arg(name)
-                .arg(tempValue);
+        final JInvocation invoke = param.invoke(executableElement.getSimpleName().toString());
+//        body.assign(tempValue, invoke);
+//        final JBlock thenBlock = body._if(tempValue.neNull())._then();
+
+        URLConversionServiceWriter.getInstance()
+                .addQueryParam(body, urlFactoryServiceWriter.getUrlConversionService(), uriComponentsBuilder, name, invoke,
+                        executableElement.getReturnType(), langModelUtil);
+
+//        thenBlock.invoke(uriComponentsBuilder, "queryParam").arg(name).arg(tempValue);
     }
 
     private Element convert(TypeMirror typeMirror) {
         return LangModelUtil.convert(typeMirror);
     }
-
 
     @Override
     public boolean isRelevantForUrl() {

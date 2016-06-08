@@ -27,6 +27,7 @@ package de.neofonie.surlgen.processor.core.data;
 import com.helger.jcodemodel.JArray;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
+import de.neofonie.surlgen.processor.classwriter.UrlFactoryServiceWriter;
 import de.neofonie.surlgen.processor.util.LangModelUtil;
 
 import javax.lang.model.element.VariableElement;
@@ -38,7 +39,7 @@ class UrlRelevantParameter extends Parameter {
     }
 
     @Override
-    public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder) {
+    public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder, UrlFactoryServiceWriter urlFactoryServiceWriter) {
 
         JVar param = appendParamToMethod(urlMethod);
         varArgArray.add(param);

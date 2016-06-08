@@ -22,13 +22,55 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.spring;
+package de.neofonie.surlgen.example.spring;
 
-public class HallaWorldCommand {
+import java.util.List;
 
-    private String halla = "halla";
+public class HelloWorldCommand extends HallaWorldCommand {
 
-    public String getHalla() {
-        return halla;
+    private int id;
+    private String caption;
+    private List<String> fooo;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public void get() {
+        //Invalid getter
+    }
+
+    private String getFoo() {
+        //Invalid getter
+        return "";
+    }
+
+    public void setFooo(List<String> fooo) {
+        this.fooo = fooo;
+    }
+
+    public List<String> getFooo() {
+        return fooo;
+    }
+
+    @Override
+    public String toString() {
+        return "HelloWorldCommand{" +
+                "id=" + id +
+                ", caption='" + caption + '\'' +
+                ", fooo=" + fooo +
+                '}';
     }
 }

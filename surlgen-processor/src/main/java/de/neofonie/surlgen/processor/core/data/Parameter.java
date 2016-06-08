@@ -29,6 +29,7 @@ import com.helger.jcodemodel.JArray;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
 import de.neofonie.surlgen.processor.classwriter.ClassWriter;
+import de.neofonie.surlgen.processor.classwriter.UrlFactoryServiceWriter;
 import de.neofonie.surlgen.processor.util.LangModelUtil;
 import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -80,7 +81,7 @@ public abstract class Parameter {
 
     public abstract boolean isRelevantForUrl();
 
-    public abstract void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder);
+    public abstract void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder, UrlFactoryServiceWriter urlFactoryServiceWriter);
 
     public final JVar appendParamToMethod(JMethod method) {
         AbstractJType type = ClassWriter.parseType(variableElement.asType().toString());

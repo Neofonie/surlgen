@@ -27,10 +27,7 @@ package de.neofonie.surlgen.processor.util;
 import de.neofonie.surlgen.processor.core.CamelCaseUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -95,7 +92,7 @@ public class LangModelUtil {
     public List<? extends Element> extractGetterForFields(TypeMirror typeMirror) {
         List<? extends Element> elements = getEnclosedElementsInHierarchy(typeMirror);
         final List<Element> result = new ArrayList<>();
-        final List<? extends Element> fields = LangModelUtil.filter(elements, ElementKind.FIELD);
+        final List<? extends Element> fields = filter(elements, ElementKind.FIELD);
         for (Element field : fields) {
             final Element method = getMethod(elements, field);
             elements.remove(method);
@@ -130,6 +127,54 @@ public class LangModelUtil {
             return false;
         }
 
-        return executableElement.getReturnType().equals(field.asType());
+        return equals(executableElement.getReturnType(), field.asType());
+    }
+
+    private boolean equals(TypeMirror typeMirror1, TypeMirror typeMirror2) {
+        if (typeMirror1.equals(typeMirror2)) {
+            return true;
+        }
+
+        if (typeMirror1.getKind() != typeMirror2.getKind()) {
+            return false;
+        }
+        if (typeMirror1.getKind() == TypeKind.DECLARED) {
+            DeclaredType d1 = (DeclaredType) typeMirror1;
+            DeclaredType d2 = (DeclaredType) typeMirror2;
+            if (!d1.asElement().equals(d2.asElement())) {
+                return false;
+            }
+            final List<? extends TypeMirror> a1 = d1.getTypeArguments();
+            final List<? extends TypeMirror> a2 = d2.getTypeArguments();
+            if (a1.size() != a2.size()) {
+                return false;
+            }
+            for (int i = 0; i < a1.size(); i++) {
+                final boolean equals = equals(a1.get(i), a2.get(i));
+                if (!equals) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return typeMirror1.equals(typeMirror2);
+    }
+
+    public <T> boolean isOfType(DeclaredType declaredType, Class<T> clazz) {
+        final TypeElement element = (TypeElement) declaredType.asElement();
+        if (element.getQualifiedName().toString().equals(clazz.getName())) {
+            return true;
+        }
+
+        final List<? extends TypeMirror> typeMirrors = processingEnvironment.getTypeUtils().directSupertypes(declaredType);
+        for (TypeMirror typeMirror1 : typeMirrors) {
+
+            final DeclaredType convert = (DeclaredType) typeMirror1;
+            if (isOfType(convert, clazz)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

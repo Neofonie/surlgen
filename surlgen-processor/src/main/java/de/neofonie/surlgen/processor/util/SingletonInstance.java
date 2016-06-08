@@ -22,31 +22,24 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.core.data;
+package de.neofonie.surlgen.processor.util;
 
-import com.helger.jcodemodel.JArray;
-import com.helger.jcodemodel.JExpr;
-import com.helger.jcodemodel.JMethod;
-import com.helger.jcodemodel.JVar;
-import de.neofonie.surlgen.processor.classwriter.UrlFactoryServiceWriter;
-import de.neofonie.surlgen.processor.util.LangModelUtil;
+import java.util.function.Supplier;
 
-import javax.lang.model.element.VariableElement;
+public class SingletonInstance<T> {
 
-class NotSupportedParameter extends Parameter {
+    private T instance = null;
+    private final Supplier<? extends T> function;
 
-    protected NotSupportedParameter(VariableElement variableElement, LangModelUtil langModelUtil) {
-        super(variableElement, langModelUtil);
+    public SingletonInstance(Supplier<? extends T> function) {
+        this.function = function;
     }
 
-    @Override
-    public void handleUriComponentsInvocation(JMethod urlMethod, JArray varArgArray, JVar uriComponentsBuilder, UrlFactoryServiceWriter urlFactoryServiceWriter) {
-        varArgArray.add(JExpr._null());
-    }
-
-    @Override
-    public boolean isRelevantForUrl() {
-        return false;
+    public synchronized T getInstance() {
+        if (instance == null) {
+            instance = function.get();
+        }
+        return instance;
     }
 
 }

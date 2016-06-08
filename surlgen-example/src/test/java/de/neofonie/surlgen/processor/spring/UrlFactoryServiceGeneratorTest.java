@@ -24,6 +24,7 @@
 
 package de.neofonie.surlgen.processor.spring;
 
+import de.neofonie.surlgen.example.spring.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +37,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -86,6 +89,8 @@ public class UrlFactoryServiceGeneratorTest {
         assertEquals("http://localhost/doWithModel?id=25&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
         command.setCaption("foobar");
         assertEquals("http://localhost/doWithModel?id=25&caption=foobar&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
+        command.setFooo(Arrays.asList("foo", "bar"));
+        assertEquals("http://localhost/doWithModel?id=25&caption=foobar&fooo=foo&fooo=bar&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
 
         UriComponentsBuilder doWithModel = MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "doWithModel", new Object[]{command});
         assertEquals("http://localhost/doWithModel", doWithModel.toUriString());

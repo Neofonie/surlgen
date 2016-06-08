@@ -22,43 +22,33 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.spring;
+package de.neofonie.surlgen.example.spring;
 
-public class HelloWorldCommand extends HallaWorldCommand {
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.MatrixVariable;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-    private int id;
-    private String caption;
+@Controller
+@RequestMapping("/hotels/{hotel}")
+public class HelloWorldController2 {
 
-    public int getId() {
-        return id;
+    public static final String CONST_URL = "/fooiii";
+
+    @RequestMapping("/bookings/{booking}")
+    public String getBooking(@PathVariable String booking) {
+        return "/index";
     }
 
-    public void setId(int id) {
-        this.id = id;
+    @RequestMapping("/pets/{petId}")
+    public String findPet(@PathVariable String hotel, @PathVariable String petId, Model model) {
+        return "/index";
     }
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-
-    public void get() {
-        //Invalid getter
-    }
-
-    private String getFoo() {
-        //Invalid getter
-        return "";
-    }
-
-    @Override
-    public String toString() {
-        return "HelloWorldCommand{" +
-                "id=" + id +
-                ", caption='" + caption + '\'' +
-                '}';
+    @RequestMapping(path = "/pets/{petId}", method = RequestMethod.GET)
+    public String findPet2(@PathVariable String petId, @MatrixVariable int q) {
+        return "/index";
     }
 }

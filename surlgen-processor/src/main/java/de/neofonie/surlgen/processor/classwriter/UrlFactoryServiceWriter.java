@@ -29,6 +29,7 @@ import de.neofonie.surlgen.processor.core.Options;
 import de.neofonie.surlgen.processor.core.data.UrlMethod;
 import de.neofonie.surlgen.processor.spring.UrlFactoryServiceGenerator;
 import de.neofonie.surlgen.processor.util.NamedInstances;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -46,12 +47,14 @@ public class UrlFactoryServiceWriter extends ClassWriter {
 
     private final JMethod baseMvcUriComponentsMethod;
     private final String name;
+    private final JFieldVar urlConversionService;
 
     private UrlFactoryServiceWriter(String name, JDefinedClass definedClass) {
         super(definedClass);
         this.name = name;
         baseMvcUriComponentsMethod = appendBaseMvcUriComponentsBuilderMethod();
-
+        urlConversionService = definedClass.field(JMod.PRIVATE, URLConversionServiceWriter.getInstance().definedClass, "urlConversionService");
+        urlConversionService.annotate(Autowired.class);
     }
 
     public static UrlFactoryServiceWriter create(String name) {
@@ -105,7 +108,7 @@ public class UrlFactoryServiceWriter extends ClassWriter {
         JVar uriComponentsBuilder = body.decl(ClassWriter.ref(UriComponentsBuilder.class), "uriComponentsBuilder")
                 .init(createMvcUriComponentsBuilderInvocation(methodName, varArgArray));
 
-        parameters.handleUriComponentsInvocation(urlMethod, varArgArray, uriComponentsBuilder);
+        parameters.handleUriComponentsInvocation(urlMethod, varArgArray, uriComponentsBuilder, this);
 
         body._return(uriComponentsBuilder);
         return urlMethod;
@@ -121,5 +124,9 @@ public class UrlFactoryServiceWriter extends ClassWriter {
         fromMethodName.arg(methodName);
         fromMethodName.arg(varArgArray);
         return fromMethodName;
+    }
+
+    public JFieldVar getUrlConversionService() {
+        return urlConversionService;
     }
 }

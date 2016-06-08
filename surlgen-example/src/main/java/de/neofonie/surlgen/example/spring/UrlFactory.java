@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.spring;
+package de.neofonie.surlgen.example.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -31,6 +31,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @ControllerAdvice
@@ -57,6 +58,8 @@ public class UrlFactory {
         result.add(helloWorldControllerUrlFactory.doWithModelUriString(command));
         command.setCaption("foobar");
         result.add(MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "doWithModel", new Object[]{command}).toUriString());
+        result.add(helloWorldControllerUrlFactory.doWithModelUriString(command));
+        command.setFooo(Arrays.asList("foo", "bar", "25"));
         result.add(helloWorldControllerUrlFactory.doWithModelUriString(command));
         return result;
     }
