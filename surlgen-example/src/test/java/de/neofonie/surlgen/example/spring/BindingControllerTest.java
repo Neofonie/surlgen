@@ -22,37 +22,25 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.spring;
+package de.neofonie.surlgen.example.spring;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.time.LocalDate;
-
-import static org.junit.Assert.assertEquals;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath*:spring-test-config.xml"})
-
-public class ConversionTest {
-
+public class BindingControllerTest {
     @Autowired
-    private ConversionService conversionService;
+    private BindingControllerUrlFactoryGenerated bindingControllerUrlFactoryGenerated;
 
     @Test
-    public void testString() throws Exception {
-//        Date date = new Date(12313123L);
-//        assertEquals("Thu Jan 01 04:25:13 CET 1970", conversionService.convert(date, String.class));
-//        assertEquals(date, conversionService.convert("Thu Jan 01 04:25:13 CET 1970", Date.class));
+    public void testDate() throws Exception {
 
-        LocalDate date2 = LocalDate.of(2012, 1, 31);
-        assertEquals(date2, conversionService.convert(conversionService.convert(date2, String.class), LocalDate.class));
+//        assertEquals("http://localhost/date?date=01.01.11",
+//                bindingControllerUrlFactoryGenerated.doWithDateUriString(new Date(2011,1,1)));
 
-        assertEquals(Long.valueOf(123L), conversionService.convert("123", Long.class));
-        assertEquals("123", conversionService.convert(123, String.class));
     }
 }

@@ -24,16 +24,16 @@
 
 package de.neofonie.surlgen.example.spring;
 
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Controller
 public class HelloWorldController {
@@ -74,20 +74,20 @@ public class HelloWorldController {
     }
 
     @RequestMapping("/date")
-    public String doWithDate(@RequestParam LocalDate date) {
+    public String doWithDate(@RequestParam Date date, Model model) {
+        model.addAttribute("date", date);
+        return "/index";
+    }
+
+    @RequestMapping("/collection")
+    public String collection(@RequestParam List<String> stringList, Model model) {
+        model.addAttribute("stringList", stringList);
         return "/index";
     }
 
     @RequestMapping("/doWithModel")
-    public String doWithModel(@ModelAttribute HelloWorldCommand command) {
+    public String doWithModel(@ModelAttribute HelloWorldCommand command, Model model) {
         return "/index";
-    }
-
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setLenient(false);
-        binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
     }
 
     @RequestMapping(path = "/accounts/{account}", method = RequestMethod.PUT)

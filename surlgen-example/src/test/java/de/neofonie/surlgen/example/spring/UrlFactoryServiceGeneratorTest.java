@@ -22,9 +22,8 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.processor.spring;
+package de.neofonie.surlgen.example.spring;
 
-import de.neofonie.surlgen.example.spring.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +47,7 @@ import static org.junit.Assert.assertNotNull;
 public class UrlFactoryServiceGeneratorTest {
 
     @Autowired
-    private HelloWorldControllerUrlFactoryGenerated testExampleControllerUrlFactory;
+    private HelloWorldControllerUrlFactoryGenerated helloWorldControllerUrlFactoryGenerated;
     @Autowired
     private HelloWorldController2UrlFactoryGenerated helloWorldController2UrlFactoryGenerated;
 
@@ -64,13 +63,13 @@ public class UrlFactoryServiceGeneratorTest {
 
     @Test
     public void testUrl() throws Exception {
-        assertNotNull("No TestExampleControllerUrlFactory found", testExampleControllerUrlFactory);
-        assertEquals("http://localhost/", testExampleControllerUrlFactory.indexUriString());
-        assertEquals("http://localhost/foo", testExampleControllerUrlFactory.fooUriString());
+        assertNotNull("No TestExampleControllerUrlFactory found", helloWorldControllerUrlFactoryGenerated);
+        assertEquals("http://localhost/", helloWorldControllerUrlFactoryGenerated.indexUriString());
+        assertEquals("http://localhost/foo", helloWorldControllerUrlFactoryGenerated.fooUriString());
         assertEquals("http://localhost/fooiii?pp=1&a=2&b=bla&c=3&d=4",
-                testExampleControllerUrlFactory.fooUriString(1L, 2L, "bla", 3, 4L));
+                helloWorldControllerUrlFactoryGenerated.fooUriString(1L, 2L, "bla", 3, 4L));
         assertEquals("http://localhost/fooB?g=1&h=2&i=3&message=bla",
-                testExampleControllerUrlFactory.fooUriString(1L, 2L, 3, "bla"));
+                helloWorldControllerUrlFactoryGenerated.fooUriString(1L, 2L, 3, "bla"));
         assertEquals("http://localhost/hotels/%7Bhotel%7D/bookings/ownerId",
                 helloWorldController2UrlFactoryGenerated.getBookingUriString("ownerId"));
         assertEquals("http://localhost/hotels/ownerId/pets/petId",
@@ -82,26 +81,19 @@ public class UrlFactoryServiceGeneratorTest {
     @Test
     public void testModelAttribute() throws Exception {
 
-        assertEquals("http://localhost/doWithModel", testExampleControllerUrlFactory.doWithModelUriString(null));
+        assertEquals("http://localhost/doWithModel", helloWorldControllerUrlFactoryGenerated.doWithModelUriString(null));
         HelloWorldCommand command = new HelloWorldCommand();
-        assertEquals("http://localhost/doWithModel?id=0&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
+        assertEquals("http://localhost/doWithModel?id=0&halla=halla", helloWorldControllerUrlFactoryGenerated.doWithModelUriString(command));
         command.setId(25);
-        assertEquals("http://localhost/doWithModel?id=25&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
+        assertEquals("http://localhost/doWithModel?id=25&halla=halla", helloWorldControllerUrlFactoryGenerated.doWithModelUriString(command));
         command.setCaption("foobar");
-        assertEquals("http://localhost/doWithModel?id=25&caption=foobar&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
-        command.setFooo(Arrays.asList("foo", "bar"));
-        assertEquals("http://localhost/doWithModel?id=25&caption=foobar&fooo=foo&fooo=bar&halla=halla", testExampleControllerUrlFactory.doWithModelUriString(command));
-
-        UriComponentsBuilder doWithModel = MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "doWithModel", new Object[]{command});
-        assertEquals("http://localhost/doWithModel", doWithModel.toUriString());
-        doWithModel.queryParam("fooo", "bar", "blub");
-        assertEquals("http://localhost/doWithModel?fooo=bar&fooo=blub", doWithModel.toUriString());
+        assertEquals("http://localhost/doWithModel?id=25&caption=foobar&halla=halla", helloWorldControllerUrlFactoryGenerated.doWithModelUriString(command));
 
         Account account = new Account();
         account.setValue(123);
 
         assertEquals("http://localhost/accounts/%7Baccount%7D?value=123",
-                testExampleControllerUrlFactory.saveUriString(account));
+                helloWorldControllerUrlFactoryGenerated.saveUriString(account));
         assertEquals("http://localhost/accounts/%7Baccount%7D",
                 MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "save", new Object[]{account}).toUriString());
 
@@ -115,7 +107,16 @@ public class UrlFactoryServiceGeneratorTest {
         HelloWorldCommand command = new HelloWorldCommand();
         command.setFooo(Arrays.asList("foo", "bar"));
         assertEquals("http://localhost/doWithModel?id=0&fooo=foo&fooo=bar&halla=halla",
-                testExampleControllerUrlFactory.doWithModelUriString(command));
+                helloWorldControllerUrlFactoryGenerated.doWithModelUriString(command));
+
+        UriComponentsBuilder doWithModel = MvcUriComponentsBuilder.fromMethodName(HelloWorldController.class, "doWithModel", new Object[]{command, null});
+        assertEquals("http://localhost/doWithModel", doWithModel.toUriString());
+        doWithModel.queryParam("fooo", "bar", "blub");
+        assertEquals("http://localhost/doWithModel?fooo=bar&fooo=blub", doWithModel.toUriString());
+
+        assertEquals("http://localhost/collection?stringList=a&stringList=b",
+                helloWorldControllerUrlFactoryGenerated.collectionUriString(Arrays.asList("a", "b")));
+
     }
 
     @Test
@@ -124,6 +125,14 @@ public class UrlFactoryServiceGeneratorTest {
         HelloWorldCommand command = new HelloWorldCommand();
         command.setStringArray(new String[]{"oink", "bla"});
         assertEquals("http://localhost/doWithModel?id=0&stringArray=oink&stringArray=bla&halla=halla",
-                testExampleControllerUrlFactory.doWithModelUriString(command));
+                helloWorldControllerUrlFactoryGenerated.doWithModelUriString(command));
+    }
+
+    @Test
+    public void testDate() throws Exception {
+
+//        assertEquals("http://localhost/date?date=01.01.11",
+//                helloWorldControllerUrlFactoryGenerated.doWithDateUriString(new Date(2011, 1, 1)));
+
     }
 }
