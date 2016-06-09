@@ -1,0 +1,33 @@
+options {
+    STATIC = false ;
+}
+
+PARSER_BEGIN(UrlMappingParser)
+package de.neofonie.surlgen.urlmapping.parser;
+
+import java.io.StringReader;
+
+public class UrlMappingParser {
+
+    public static UrlPattern parse( String expression ) throws ParseException, TokenMgrError {
+        UrlMappingParser parser = new UrlMappingParser( new StringReader(expression) ) ;
+        return parser.start();
+    }
+}
+PARSER_END(UrlMappingParser)
+
+SKIP:  { " " | "\t" | "\n" | "\r"                    }
+TOKEN: {
+< ANYTHING : (~["{", "}", "\[", "\]"])+ >
+| "(" | ")" | "+" | "*" | <NUM: (["0"-"9"])+>
+}
+
+private UrlPattern start(): {UrlPattern t;} {
+    t = token() <EOF>
+    {return t;}
+}
+
+private UrlPattern token(): {Token t;} {
+    t = <ANYTHING> { return new StaticUrlPattern(t.image); }
+}
+
