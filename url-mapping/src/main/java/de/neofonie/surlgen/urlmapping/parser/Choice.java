@@ -27,12 +27,12 @@ package de.neofonie.surlgen.urlmapping.parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Choice implements UrlPattern {
+class Choice extends AbstractUrlPattern implements UrlPattern {
 
     private static final Logger logger = LoggerFactory.getLogger(Choice.class);
-    private final UrlPattern choice;
+    private final AbstractUrlPattern choice;
 
-    public Choice(UrlPattern choice) {
+    public Choice(AbstractUrlPattern choice) {
         this.choice = choice;
     }
 
@@ -42,4 +42,21 @@ public class Choice implements UrlPattern {
                 "choice=" + choice +
                 '}';
     }
+
+    @Override
+    protected Matcher matches(Matcher matcher) {
+        final Matcher matches = choice.matches(matcher);
+        if (matches != null) {
+            return matches;
+        }
+
+        return matcher;
+//        final String remaining = matcher.getRemaining();
+//        if (!remaining.startsWith(string)) {
+//            return false;
+//        }
+//        matcher.consume(string);
+//        return true;
+    }
+
 }

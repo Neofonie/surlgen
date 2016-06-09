@@ -24,31 +24,30 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
+public class Matcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(StaticUrlPattern.class);
+    private static final Logger logger = LoggerFactory.getLogger(Matcher.class);
     private final String string;
 
-    public StaticUrlPattern(String string) {
+    public Matcher(String string) {
+        Preconditions.checkNotNull(string);
         this.string = string;
     }
 
-    @Override
-    public String toString() {
-        return "StaticUrlPattern{" +
-                "string='" + string + '\'' +
-                '}';
+    public String getString() {
+        return string;
     }
 
-    @Override
-    public Matcher matches(Matcher matcher) {
-        final String remaining = matcher.getString();
-        if (!remaining.startsWith(string)) {
-            return null;
-        }
-        return matcher.consume(string);
+    public Matcher consume(String string) {
+        Preconditions.checkArgument(this.string.startsWith(string));
+        return new Matcher(this.string.substring(string.length()));
+    }
+
+    public boolean allConsumed() {
+        return string.isEmpty();
     }
 }

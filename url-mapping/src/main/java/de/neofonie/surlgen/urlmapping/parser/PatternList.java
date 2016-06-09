@@ -29,16 +29,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class PatternList implements UrlPattern {
+class PatternList extends AbstractUrlPattern implements UrlPattern {
 
     private static final Logger logger = LoggerFactory.getLogger(PatternList.class);
-    private final List<UrlPattern> list;
+    private final List<AbstractUrlPattern> list;
 
-    public PatternList(List<UrlPattern> list) {
+    PatternList(List<AbstractUrlPattern> list) {
         this.list = list;
     }
 
-    public static UrlPattern create(List<UrlPattern> list) {
+    public static AbstractUrlPattern create(List<AbstractUrlPattern> list) {
         if (list.size() == 1) {
             return list.get(0);
         }
@@ -51,5 +51,17 @@ public class PatternList implements UrlPattern {
         return "PatternList{" +
                 "list=" + list +
                 '}';
+    }
+
+    @Override
+    protected Matcher matches(Matcher matcher) {
+        Matcher current = matcher;
+        for (AbstractUrlPattern abstractUrlPattern : list) {
+            current = abstractUrlPattern.matches(current);
+            if (current == null) {
+                return null;
+            }
+        }
+        return current;
     }
 }

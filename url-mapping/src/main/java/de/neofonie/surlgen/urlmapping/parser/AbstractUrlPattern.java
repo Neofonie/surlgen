@@ -27,28 +27,17 @@ package de.neofonie.surlgen.urlmapping.parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
+abstract class AbstractUrlPattern implements UrlPattern {
 
-    private static final Logger logger = LoggerFactory.getLogger(StaticUrlPattern.class);
-    private final String string;
-
-    public StaticUrlPattern(String string) {
-        this.string = string;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(AbstractUrlPattern.class);
 
     @Override
-    public String toString() {
-        return "StaticUrlPattern{" +
-                "string='" + string + '\'' +
-                '}';
+    public final boolean matches(String string) {
+        final Matcher matcher = new Matcher(string);
+        final Matcher matches = matches(matcher);
+        return matches != null && matches.allConsumed();
     }
 
-    @Override
-    public Matcher matches(Matcher matcher) {
-        final String remaining = matcher.getString();
-        if (!remaining.startsWith(string)) {
-            return null;
-        }
-        return matcher.consume(string);
-    }
+    protected abstract Matcher matches(Matcher matcher);
+
 }

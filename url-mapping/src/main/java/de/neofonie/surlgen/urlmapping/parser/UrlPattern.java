@@ -25,4 +25,6 @@
 package de.neofonie.surlgen.urlmapping.parser;
 
 public interface UrlPattern {
+
+    boolean matches(String string);
 }

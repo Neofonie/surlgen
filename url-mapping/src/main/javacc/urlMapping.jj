@@ -24,25 +24,25 @@ TOKEN: {
 | "(" | ")" | "[" | "]" | "+" | "*" | <NUM: (["0"-"9"])+>
 }
 
-private UrlPattern start(): {UrlPattern t;} {
+private AbstractUrlPattern start(): {AbstractUrlPattern t;} {
     t = tokenList() <EOF>
     {return t;}
 }
 
-private UrlPattern tokenList(): {UrlPattern p; List<UrlPattern> list = new ArrayList();} {
+private AbstractUrlPattern tokenList(): {AbstractUrlPattern p; List<AbstractUrlPattern> list = new ArrayList();} {
     ( p = token() { list.add(p); } )+
     { return PatternList.create(list); }
 }
 
-private UrlPattern token(): {Token t; UrlPattern p;} {
+private AbstractUrlPattern token(): {Token t; AbstractUrlPattern p;} {
     ( "[" p = tokenList() "]" { return new Choice(p); }
     | t = <ANYTHING> { return new StaticUrlPattern(t.image); }
     )
 }
 
-private UrlPattern choice(): {Token t;UrlPattern p;} {
+private AbstractUrlPattern choice(): {AbstractUrlPattern p;} {
     "[" p = anything() "]" { return new Choice(p); }
 }
-private UrlPattern anything(): {Token t;} {
+private AbstractUrlPattern anything(): {Token t;} {
     t = <ANYTHING> { return new StaticUrlPattern(t.image); }
 }
