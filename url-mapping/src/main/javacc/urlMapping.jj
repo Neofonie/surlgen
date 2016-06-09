@@ -5,15 +5,18 @@ options {
 PARSER_BEGIN(UrlMappingParser)
 package de.neofonie.surlgen.urlmapping.parser;
 
+import de.neofonie.surlgen.urlmapping.mapping.Mapping;
+import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
+
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UrlMappingParser {
 
-    public static UrlPattern parse( String expression ) throws ParseException, TokenMgrError {
+    public static UrlPattern parse(MappingConfig mappingConfig, String expression) throws ParseException, TokenMgrError {
         UrlMappingParser parser = new UrlMappingParser( new StringReader(expression) ) ;
-        return parser.start();
+        return parser.start(mappingConfig);
     }
 }
 PARSER_END(UrlMappingParser)
@@ -33,19 +36,19 @@ TOKEN: {
     | <END : "}">:DEFAULT
 }
 
-private AbstractUrlPattern start(): {AbstractUrlPattern t;} {
-    t = tokenList() <EOF>
+private AbstractUrlPattern start(MappingConfig mappingConfig): {AbstractUrlPattern t;} {
+    t = tokenList(mappingConfig) <EOF>
     {return t;}
 }
 
-private AbstractUrlPattern tokenList(): {AbstractUrlPattern p; List<AbstractUrlPattern> list = new ArrayList();} {
-    ( p = token() { list.add(p); } )+
+private AbstractUrlPattern tokenList(MappingConfig mappingConfig): {AbstractUrlPattern p; List<AbstractUrlPattern> list = new ArrayList();} {
+    ( p = token(mappingConfig) { list.add(p); } )+
     { return PatternList.create(list); }
 }
 
-private AbstractUrlPattern token(): {Token t; AbstractUrlPattern p;} {
-    ( "[" p = tokenList() "]" { return new Choice(p); }
-    | "{" p = mapping() <END> { return p; }
+private AbstractUrlPattern token(MappingConfig mappingConfig): {Token t; AbstractUrlPattern p;} {
+    ( "[" p = tokenList(mappingConfig) "]" { return new Choice(p); }
+    | "{" p = mapping(mappingConfig) <END> { return p; }
     | p = anything() { return p; }
     )
 }
@@ -54,8 +57,8 @@ private AbstractUrlPattern choice(): {AbstractUrlPattern p;} {
     "[" p = anything() "]" { return new Choice(p); }
 }
 
-private AbstractUrlPattern mapping(): {Token name;Token type;} {
-    name = <PARAM> <MAP> type = <PARAM> { return new Mapping(name.image, type.image); }
+private AbstractUrlPattern mapping(MappingConfig mappingConfig): {Token name;Token type;} {
+    name = <PARAM> <MAP> type = <PARAM> { return new MappingPattern(name.image, type.image, mappingConfig); }
 }
 
 private AbstractUrlPattern anything(): {Token t; StringBuilder sb = new StringBuilder();} {

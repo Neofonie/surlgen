@@ -24,14 +24,16 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import de.neofonie.surlgen.urlmapping.mapping.Mapping;
+import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class UrlMappingParserTest {
+public class UrlMappingPatternParserTest {
     @Test
     public void testStatic() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse("/fooo");
+        final UrlPattern parse = UrlMappingParser.parse(null, "/fooo");
         assertEquals("StaticUrlPattern{string='/fooo'}", parse.toString());
         assertTrue(parse.matches("/fooo"));
         assertFalse(parse.matches("/foo"));
@@ -41,7 +43,7 @@ public class UrlMappingParserTest {
 
     @Test
     public void testCompleteChoice() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse("[/fooo/asdf]");
+        final UrlPattern parse = UrlMappingParser.parse(null, "[/fooo/asdf]");
         assertEquals("Choice{choice=StaticUrlPattern{string='/fooo/asdf'}}", parse.toString());
         assertTrue(parse.matches("/fooo/asdf"));
         assertFalse(parse.matches("/fooo/asdfD"));
@@ -53,7 +55,7 @@ public class UrlMappingParserTest {
 
     @Test
     public void testMixed() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse("/fooo[/asdf]");
+        final UrlPattern parse = UrlMappingParser.parse(null, "/fooo[/asdf]");
         assertEquals("PatternList{list=[StaticUrlPattern{string='/fooo'}, Choice{choice=StaticUrlPattern{string='/asdf'}}]}",
                 parse.toString());
 
@@ -66,7 +68,7 @@ public class UrlMappingParserTest {
 
     @Test
     public void testComplex() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse("/fooo[[/asdf]/fooo[/asdf]]");
+        final UrlPattern parse = UrlMappingParser.parse(null, "/fooo[[/asdf]/fooo[/asdf]]");
         assertEquals("PatternList{list=[" +
                         "StaticUrlPattern{string='/fooo'}, " +
                         "Choice{choice=PatternList{list=[Choice{choice=StaticUrlPattern{string='/asdf'}}, " +
@@ -88,8 +90,26 @@ public class UrlMappingParserTest {
 
     @Test
     public void testComplex2() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse("/fooo[/bar[-asdf]]");
+        final UrlPattern parse = UrlMappingParser.parse(null, "/fooo[/bar[-asdf]]");
         assertEquals("PatternList{list=[StaticUrlPattern{string='/fooo'}, Choice{choice=PatternList{list=[StaticUrlPattern{string='/bar'}, Choice{choice=StaticUrlPattern{string='-asdf'}}]}}]}",
+                parse.toString());
+
+        assertFalse(parse.matches("/fooo/asdf"));
+        assertTrue(parse.matches("/fooo"));
+        assertTrue(parse.matches("/fooo/bar"));
+        assertTrue(parse.matches("/fooo/bar-asdf"));
+    }
+
+    @Test
+    public void testMapping_Simple() throws Exception {
+        final MappingConfig mappingConfig = new MappingConfig();
+        mappingConfig.put("int", new Mapping() {
+
+        });
+
+        final UrlPattern parse = UrlMappingParser.parse(mappingConfig, "{foo:int}");
+        assertNotNull(parse);
+        assertEquals("Mapping{name='foo', type='int'}",
                 parse.toString());
 
         assertFalse(parse.matches("/fooo/asdf"));
