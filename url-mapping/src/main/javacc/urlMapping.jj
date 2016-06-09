@@ -18,10 +18,19 @@ public class UrlMappingParser {
 }
 PARSER_END(UrlMappingParser)
 
+//http://eriklievaart.com/blog/javacc2.html
+
 SKIP:  { " " | "\t" | "\n" | "\r"                    }
 TOKEN: {
-< ANYTHING : (~["{", "}", "[", "]"])+ >
-| "(" | ")" | "[" | "]" | "+" | "*" | <NUM: (["0"-"9"])+>
+// < PARAM : (["a"-"z", "A"-"Z"])+ > |
+ < MAPS: "{">: MAPPING
+ | < ANYTHING : (~["{", "}", "[", "]"])+ >
+}
+
+<MAPPING> TOKEN: {
+    < PARAM : (["a"-"z", "A"-"Z"])+ >
+    | <MAP : ":">
+    | <END : "}">:DEFAULT
 }
 
 private AbstractUrlPattern start(): {AbstractUrlPattern t;} {
@@ -36,13 +45,20 @@ private AbstractUrlPattern tokenList(): {AbstractUrlPattern p; List<AbstractUrlP
 
 private AbstractUrlPattern token(): {Token t; AbstractUrlPattern p;} {
     ( "[" p = tokenList() "]" { return new Choice(p); }
-    | t = <ANYTHING> { return new StaticUrlPattern(t.image); }
+    | "{" p = mapping() <END> { return p; }
+    | p = anything() { return p; }
     )
 }
 
 private AbstractUrlPattern choice(): {AbstractUrlPattern p;} {
     "[" p = anything() "]" { return new Choice(p); }
 }
-private AbstractUrlPattern anything(): {Token t;} {
-    t = <ANYTHING> { return new StaticUrlPattern(t.image); }
+
+private AbstractUrlPattern mapping(): {Token name;Token type;} {
+    name = <PARAM> <MAP> type = <PARAM> { return new Mapping(name.image, type.image); }
+}
+
+private AbstractUrlPattern anything(): {Token t; StringBuilder sb = new StringBuilder();} {
+ t = <ANYTHING>
+ { return new StaticUrlPattern(t.image); }
 }
