@@ -39,4 +39,6 @@
         <property name="suffix" value=".jsp"/>
     </bean>
 
+    <bean id="urlMappingFilter" class="de.neofonie.surlgen.urlmapping.UrlMappingFilter"/>
+    <bean id="urlMappingService" class="de.neofonie.surlgen.urlmapping.UrlMappingService"/>
 </beans>
