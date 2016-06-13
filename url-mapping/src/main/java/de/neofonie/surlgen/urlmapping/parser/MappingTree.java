@@ -26,8 +26,6 @@ package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,8 +33,7 @@ import java.util.List;
 
 public class MappingTree<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MappingTree.class);
-    private List<Node<T>> root = new ArrayList<>();
+    private final List<Node<T>> root = new ArrayList<>();
     private T rootValue;
 
     public void addEntry(UrlPattern urlPattern, T value) {
@@ -49,7 +46,7 @@ public class MappingTree<T> {
     private void addEntry(List<Matcher> matcherList, T value) {
         Preconditions.checkNotNull(value);
         if (matcherList.isEmpty()) {
-            Preconditions.checkArgument(rootValue == null, String.format("Root-Node has already a value"));
+            Preconditions.checkArgument(rootValue == null, "Root-Node has already a value");
             rootValue = value;
             return;
         }
@@ -87,7 +84,7 @@ public class MappingTree<T> {
     public String toStringHierarchy() {
         StringBuilder stringBuilder = new StringBuilder();
         if (rootValue != null) {
-            stringBuilder.append("<").append(rootValue).append(">").append("\n");
+            stringBuilder.append('<').append(rootValue).append('>').append('\n');
         }
         for (Node<T> node : root) {
             node.appendStringHierarchy(stringBuilder, 1);
@@ -97,7 +94,7 @@ public class MappingTree<T> {
 
     public MatcherResult<T> matches(String value) {
         if (value.isEmpty()) {
-            return MatcherResult.create(this.rootValue, new Params());
+            return MatcherResult.create(rootValue, new Params());
         }
 
         for (Node<T> node : root) {
@@ -116,7 +113,7 @@ public class MappingTree<T> {
     private static class Node<T> {
 
         private final Matcher urlPattern;
-        private List<Node<T>> childs = new ArrayList<>();
+        private final List<Node<T>> childs = new ArrayList<>();
         private T value;
 
         private Node(Matcher urlPattern) {
@@ -124,7 +121,7 @@ public class MappingTree<T> {
         }
 
         private void appendStringHierarchy(StringBuilder stringBuilder, int deep) {
-            stringBuilder.append(urlPattern.toString());
+            stringBuilder.append(urlPattern);
             if (value != null) {
                 stringBuilder.append('<').append(value).append('>');
             }
@@ -165,17 +162,19 @@ public class MappingTree<T> {
         }
 
         public MatcherResult<T> resolve(MatcherProcessingCommand matcherProcessingCommand) {
-            final MatcherProcessingCommand matches = urlPattern.matches(matcherProcessingCommand);
-            if (matches == null) {
+            final List<MatcherProcessingCommand> matches = urlPattern.matches(matcherProcessingCommand);
+            if (matches == null || matches.isEmpty()) {
                 return null;
             }
-            if (matches.allConsumed()) {
-                return MatcherResult.create(this.value, matches.getParams());
-            }
-            for (Node<T> node : childs) {
-                MatcherResult<T> t = node.resolve(matches);
-                if (t != null) {
-                    return t;
+            for (MatcherProcessingCommand match : matches) {
+                if (match.allConsumed()) {
+                    return MatcherResult.create(value, match.getParams());
+                }
+                for (Node<T> node : childs) {
+                    MatcherResult<T> t = node.resolve(match);
+                    if (t != null) {
+                        return t;
+                    }
                 }
             }
             return null;

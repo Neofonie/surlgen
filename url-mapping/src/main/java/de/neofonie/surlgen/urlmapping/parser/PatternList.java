@@ -24,15 +24,11 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
 class PatternList implements UrlPattern {
 
-    private static final Logger logger = LoggerFactory.getLogger(PatternList.class);
     private final List<UrlPattern> list;
 
     PatternList(List<UrlPattern> list) {
@@ -46,18 +42,6 @@ class PatternList implements UrlPattern {
 
         return new PatternList(list);
     }
-
-//    @Override
-//    protected MatcherResult matches(MatcherResult matcherResult) {
-//        MatcherResult current = matcherResult;
-//        for (UrlPattern abstractUrlPattern : list) {
-//            current = abstractUrlPattern.matches(current);
-//            if (current == null) {
-//                return null;
-//            }
-//        }
-//        return current;
-//    }
 
     @Override
     public List<List<Matcher>> getCompleteHierarchy() {

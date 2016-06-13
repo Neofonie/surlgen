@@ -24,36 +24,16 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
 class Choice implements UrlPattern {
 
-    private static final Logger logger = LoggerFactory.getLogger(Choice.class);
     private final UrlPattern choice;
 
-    public Choice(UrlPattern choice) {
+    Choice(UrlPattern choice) {
         this.choice = choice;
     }
-
-//    @Override
-//    protected MatcherResult matches(MatcherResult matcherResult) {
-//        final MatcherResult matches = choice.matches(matcherResult);
-//        if (matches != null) {
-//            return matches;
-//        }
-//
-//        return matcherResult;
-////        final String remaining = matcher.getRemaining();
-////        if (!remaining.startsWith(string)) {
-////            return false;
-////        }
-////        matcher.consume(string);
-////        return true;
-//    }
 
     @Override
     public List<List<Matcher>> getCompleteHierarchy() {

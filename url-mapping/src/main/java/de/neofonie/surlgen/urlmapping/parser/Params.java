@@ -25,27 +25,24 @@
 package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class Params {
 
-    private static final Logger logger = LoggerFactory.getLogger(Params.class);
     private final Map<String, List<String>> params = new HashMap<>();
 
     public Params() {
     }
 
     public Params(Params params) {
-        this.addAll(params);
+        addAll(params);
     }
 
     public Params add(String key, String value) {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(value);
-        params.computeIfAbsent(key, t -> new ArrayList<String>()).add(value);
+        params.computeIfAbsent(key, t -> new ArrayList<>()).add(value);
         return this;
     }
 
@@ -53,7 +50,7 @@ public class Params {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(value);
 
-        params.computeIfAbsent(key, t -> new ArrayList<String>()).addAll(value);
+        params.computeIfAbsent(key, t -> new ArrayList<>()).addAll(value);
         return this;
     }
 

@@ -26,17 +26,11 @@ package de.neofonie.surlgen.urlmapping.parser;
 
 import de.neofonie.surlgen.urlmapping.mapping.Mapping;
 import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-class MappingPattern extends AbstractUrlPattern {
+class MappingPattern implements Matcher, UrlPattern {
 
-    private static final Logger logger = LoggerFactory.getLogger(MappingPattern.class);
     private final String name;
     private final String type;
     private final Mapping mapping;
@@ -48,20 +42,20 @@ class MappingPattern extends AbstractUrlPattern {
     }
 
     @Override
-    public MatcherProcessingCommand matches(MatcherProcessingCommand matcherProcessingCommand) {
+    public List<MatcherProcessingCommand> matches(MatcherProcessingCommand matcherProcessingCommand) {
 
         final Collection<Map.Entry<String, String>> matches = mapping.getMatches(matcherProcessingCommand.getString());
         if (matches == null) {
-            return null;
+            return Collections.emptyList();
         }
-
+        List<MatcherProcessingCommand> result = new ArrayList<>();
         for (Map.Entry<String, String> match : matches) {
             final MatcherProcessingCommand consume = matcherProcessingCommand.consume(match.getKey(), name, match.getValue());
             if (consume != null) {
-                return consume;
+                result.add(consume);
             }
         }
-        return null;
+        return result;
     }
 
     @Override

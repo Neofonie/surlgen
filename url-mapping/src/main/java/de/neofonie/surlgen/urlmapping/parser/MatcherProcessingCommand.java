@@ -25,16 +25,13 @@
 package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class MatcherProcessingCommand {
 
-    private static final Logger logger = LoggerFactory.getLogger(MatcherProcessingCommand.class);
     private final String string;
     private final Params params = new Params();
 
-    public MatcherProcessingCommand(String string) {
+    MatcherProcessingCommand(String string) {
         Preconditions.checkNotNull(string);
         this.string = string;
     }

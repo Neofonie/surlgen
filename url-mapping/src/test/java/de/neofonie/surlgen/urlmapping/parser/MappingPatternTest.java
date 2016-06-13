@@ -37,12 +37,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class MappingPatternTest {
+
     @Test
     public void testMapping_Simple() throws Exception {
         final MappingConfig mappingConfig = new MappingConfig();
-
         final Mapping mapping = EasyMock.createMock(Mapping.class);
-
         mappingConfig.put("int", mapping);
 
         final UrlPattern urlPattern = UrlMappingParser.parse(mappingConfig, "{foo:int}");
@@ -51,30 +50,41 @@ public class MappingPatternTest {
                 urlPattern.toString());
 
         EasyMock.expect(mapping.getMatches("fooo/asdf")).andReturn(Collections.emptyList());
-        EasyMock.expect(mapping.getMatches("fooo")).andReturn(Arrays.asList(
-                new AbstractMap.SimpleImmutableEntry<String, String>("fooo", "12")
-        ));
-        EasyMock.expect(mapping.getMatches("fooo/bar")).andReturn(Arrays.asList(
-                new AbstractMap.SimpleImmutableEntry<String, String>("fooo", "12"),
-                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar", "13")
-        ));
-        EasyMock.expect(mapping.getMatches("fooo/bar-asdf")).andReturn(Arrays.asList(
-                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar-asdf", "14"),
-                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar", "15")
-        ));
-//        EasyMock.expect(mapping.getMatches("/fooo/asdf")).andReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<String, String>()));
-//        EasyMock.expect(mapping.getMatches("/fooo/asdf")).andReturn(Collections.emptyList());
-
         final MappingTree<String> mappingTree = createMappingTree(urlPattern);
         assertEquals("Mapping{name='foo', type='int'}<SUCCESS>\n", mappingTree.toStringHierarchy());
 
         EasyMock.replay(mapping);
         assertEquals(mappingTree.matches("fooo/asdf"), null);
+        EasyMock.verify(mapping);
+        EasyMock.reset(mapping);
+
+        EasyMock.expect(mapping.getMatches("fooo")).andReturn(Arrays.asList(
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo", "12")
+        ));
+        EasyMock.replay(mapping);
         assertTrue("Params{params={foo=[12]}}", mappingTree.matches("fooo"));
-        //TODO: YES - GREEDY
-        assertEquals(mappingTree.matches("fooo/bar"), null);
+
+        EasyMock.verify(mapping);
+        EasyMock.reset(mapping);
+
+        //TODO: NOT GREEDY
+        EasyMock.expect(mapping.getMatches("fooo/bar")).andReturn(Arrays.asList(
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo", "12"),
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar", "13")
+        ));
+        EasyMock.replay(mapping);
+        assertTrue("Params{params={foo=[13]}}", mappingTree.matches("fooo/bar"));
+        EasyMock.verify(mapping);
+        EasyMock.reset(mapping);
+
+        EasyMock.expect(mapping.getMatches("fooo/bar-asdf")).andReturn(Arrays.asList(
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar-asdf", "14"),
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar", "15")
+        ));
+        EasyMock.replay(mapping);
         assertTrue("Params{params={foo=[14]}}", mappingTree.matches("fooo/bar-asdf"));
         EasyMock.verify(mapping);
+
     }
 
     public static void assertTrue(String params, MatcherResult<String> pattern) throws ParseException {
@@ -82,7 +92,6 @@ public class MappingPatternTest {
         assertEquals("SUCCESS", pattern.getValue());
         assertEquals(params, pattern.getParams().toString());
     }
-
 
     private static MappingTree<String> createMappingTree(UrlPattern urlPattern) {
         MappingTree<String> mappingTree = new MappingTree<>();

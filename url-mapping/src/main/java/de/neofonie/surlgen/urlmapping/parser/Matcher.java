@@ -24,10 +24,10 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import java.util.List;
+
 public interface Matcher {
 
-//    boolean matches(String string);
-
-    abstract MatcherProcessingCommand matches(MatcherProcessingCommand matcherProcessingCommand);
+    List<MatcherProcessingCommand> matches(MatcherProcessingCommand matcherProcessingCommand);
 
 }

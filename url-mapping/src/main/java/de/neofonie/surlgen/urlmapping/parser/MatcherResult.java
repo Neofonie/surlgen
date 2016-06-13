@@ -39,7 +39,7 @@ class MatcherResult<T> {
         }
     }
 
-    MatcherResult(T value, Params params) {
+    private MatcherResult(T value, Params params) {
         Preconditions.checkNotNull(value);
         Preconditions.checkNotNull(params);
         this.value = value;

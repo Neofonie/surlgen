@@ -25,18 +25,15 @@
 package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
 
-class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
+class StaticUrlPattern implements UrlPattern, Matcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(StaticUrlPattern.class);
     private final String string;
 
-    public StaticUrlPattern(String string) {
+    StaticUrlPattern(String string) {
         Preconditions.checkNotNull(string);
         Preconditions.checkArgument(!string.isEmpty());
         this.string = string;
@@ -50,12 +47,12 @@ class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
     }
 
     @Override
-    public MatcherProcessingCommand matches(MatcherProcessingCommand matcherProcessingCommand) {
+    public List<MatcherProcessingCommand> matches(MatcherProcessingCommand matcherProcessingCommand) {
         final String remaining = matcherProcessingCommand.getString();
         if (!remaining.startsWith(string)) {
-            return null;
+            return Collections.emptyList();
         }
-        return matcherProcessingCommand.consume(string);
+        return Collections.singletonList(matcherProcessingCommand.consume(string));
     }
 
     @Override
@@ -65,14 +62,17 @@ class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         StaticUrlPattern that = (StaticUrlPattern) o;
 
-        if (!string.equals(that.string)) return false;
+        return string.equals(that.string);
 
-        return true;
     }
 
     @Override
