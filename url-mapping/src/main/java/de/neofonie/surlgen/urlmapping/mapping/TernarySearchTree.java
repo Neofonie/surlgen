@@ -26,11 +26,19 @@ package de.neofonie.surlgen.urlmapping.mapping;
 
 import com.google.common.base.Preconditions;
 
+import java.util.*;
+
 public class TernarySearchTree<T> {
 
     private Node<T> root;
 
-    public void add(String key, T value) {
+    public void putAll(Map<String, T> map) {
+        for (Map.Entry<String, T> entry : map.entrySet()) {
+            put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    public void put(String key, T value) {
         final Node<T> node = createNode(key);
         node.value = value;
     }
@@ -56,28 +64,6 @@ public class TernarySearchTree<T> {
         return node;
     }
 
-    public T getValue(String key) {
-        Node<T> node = root;
-        char[] charArray = key.toCharArray();
-        for (int i = 0, charArrayLength = charArray.length; i < charArrayLength; i++) {
-            if (node == null) {
-                return null;
-            }
-            char c = charArray[i];
-            if (i > 0) {
-                node = node.middle;
-            }
-            if (node == null) {
-                return null;
-            }
-            node = getNode(node, c);
-        }
-        if (node == null) {
-            return null;
-        }
-        return node.value;
-    }
-
     private Node<T> createNode(Node<T> node, char c) {
         Preconditions.checkNotNull(node);
         int compare = Character.compare(node.c, c);
@@ -98,6 +84,29 @@ public class TernarySearchTree<T> {
         return node;
     }
 
+    public T getValue(String key) {
+        if (root == null) {
+            return null;
+        }
+
+        Node<T> node = root;
+        char[] charArray = key.toCharArray();
+        for (int i = 0, charArrayLength = charArray.length; i < charArrayLength; i++) {
+            if (i > 0) {
+                node = node.middle;
+                if (node == null) {
+                    return null;
+                }
+            }
+            char c = charArray[i];
+            node = getNode(node, c);
+            if (node == null) {
+                return null;
+            }
+        }
+        return node.value;
+    }
+
     private Node<T> getNode(Node<T> node, char c) {
         Preconditions.checkNotNull(node);
         int compare = Character.compare(node.c, c);
@@ -113,6 +122,36 @@ public class TernarySearchTree<T> {
             compare = Character.compare(node.c, c);
         }
         return node;
+    }
+
+    public List<Map.Entry<String, T>> headMap(String key) {
+        if (root == null) {
+            return Collections.emptyList();
+        }
+        List<Map.Entry<String, T>> result = new ArrayList<>();
+        Node<T> node = root;
+        char[] charArray = key.toCharArray();
+        for (int i = 0, charArrayLength = charArray.length; i < charArrayLength; i++) {
+            if (i > 0) {
+                if (node.value != null) {
+                    result.add(new AbstractMap.SimpleImmutableEntry<>(key.substring(0, i), node.value));
+                }
+                node = node.middle;
+                if (node == null) {
+                    return result;
+                }
+            }
+            char c = charArray[i];
+            node = getNode(node, c);
+            if (node == null) {
+                return result;
+            }
+
+        }
+        if (node.value != null) {
+            result.add(new AbstractMap.SimpleImmutableEntry<>(key, node.value));
+        }
+        return result;
     }
 
     @Override
