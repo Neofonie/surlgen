@@ -27,6 +27,9 @@ package de.neofonie.surlgen.urlmapping.parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.List;
+
 class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
 
     private static final Logger logger = LoggerFactory.getLogger(StaticUrlPattern.class);
@@ -44,11 +47,16 @@ class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
     }
 
     @Override
-    public Matcher matches(Matcher matcher) {
-        final String remaining = matcher.getString();
+    public MatcherResult matches(MatcherResult matcherResult) {
+        final String remaining = matcherResult.getString();
         if (!remaining.startsWith(string)) {
             return null;
         }
-        return matcher.consume(string);
+        return matcherResult.consume(string);
+    }
+
+    @Override
+    public List<List<Matcher>> getCompleteHierarchy() {
+        return Collections.singletonList(Collections.singletonList(this));
     }
 }

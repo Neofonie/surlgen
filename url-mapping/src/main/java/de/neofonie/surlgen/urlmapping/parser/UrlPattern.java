@@ -24,7 +24,9 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import java.util.List;
+
 public interface UrlPattern {
 
-    boolean matches(String string);
+    public List<List<Matcher>> getCompleteHierarchy();
 }

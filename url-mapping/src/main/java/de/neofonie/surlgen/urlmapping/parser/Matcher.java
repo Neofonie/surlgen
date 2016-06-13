@@ -24,30 +24,8 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
-import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public interface Matcher {
 
-public class Matcher {
+    boolean matches(String string);
 
-    private static final Logger logger = LoggerFactory.getLogger(Matcher.class);
-    private final String string;
-
-    public Matcher(String string) {
-        Preconditions.checkNotNull(string);
-        this.string = string;
-    }
-
-    public String getString() {
-        return string;
-    }
-
-    public Matcher consume(String string) {
-        Preconditions.checkArgument(this.string.startsWith(string));
-        return new Matcher(this.string.substring(string.length()));
-    }
-
-    public boolean allConsumed() {
-        return string.isEmpty();
-    }
 }

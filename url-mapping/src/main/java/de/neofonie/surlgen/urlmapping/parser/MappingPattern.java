@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 class MappingPattern extends AbstractUrlPattern {
@@ -46,18 +48,23 @@ class MappingPattern extends AbstractUrlPattern {
     }
 
     @Override
-    protected Matcher matches(Matcher matcher) {
+    protected MatcherResult matches(MatcherResult matcherResult) {
 
-        final Collection<Map.Entry<String, String>> matches = mapping.getMatches(matcher.getString());
+        final Collection<Map.Entry<String, String>> matches = mapping.getMatches(matcherResult.getString());
         if (matches == null) {
             return null;
         }
 
         for (Map.Entry<String, String> match : matches) {
-            final Matcher consume = matcher.consume(match.getKey());
+            final MatcherResult consume = matcherResult.consume(match.getKey());
             if (consume != null) return consume;
         }
         return null;
+    }
+
+    @Override
+    public List<List<Matcher>> getCompleteHierarchy() {
+        return Collections.singletonList(Collections.singletonList(this));
     }
 
     @Override

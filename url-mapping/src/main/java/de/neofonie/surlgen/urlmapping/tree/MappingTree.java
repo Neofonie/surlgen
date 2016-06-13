@@ -22,52 +22,23 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.urlmapping.parser;
+package de.neofonie.surlgen.urlmapping.tree;
 
+import de.neofonie.surlgen.urlmapping.parser.UrlPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+public class MappingTree<T> {
 
-class Choice extends AbstractUrlPattern implements UrlPattern {
+    private static final Logger logger = LoggerFactory.getLogger(MappingTree.class);
+    private Node<T> root;
 
-    private static final Logger logger = LoggerFactory.getLogger(Choice.class);
-    private final AbstractUrlPattern choice;
+    private static class Node<T> {
 
-    public Choice(AbstractUrlPattern choice) {
-        this.choice = choice;
-    }
+        private final UrlPattern urlPattern;
 
-    @Override
-    protected MatcherResult matches(MatcherResult matcherResult) {
-        final MatcherResult matches = choice.matches(matcherResult);
-        if (matches != null) {
-            return matches;
+        private Node(UrlPattern urlPattern) {
+            this.urlPattern = urlPattern;
         }
-
-        return matcherResult;
-//        final String remaining = matcher.getRemaining();
-//        if (!remaining.startsWith(string)) {
-//            return false;
-//        }
-//        matcher.consume(string);
-//        return true;
-    }
-
-    @Override
-    public List<List<Matcher>> getCompleteHierarchy() {
-
-        List<List<Matcher>> result = new ArrayList<>();
-        result.addAll(choice.getCompleteHierarchy());
-        result.add(new ArrayList<>());
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Choice{" +
-                "choice=" + choice +
-                '}';
     }
 }

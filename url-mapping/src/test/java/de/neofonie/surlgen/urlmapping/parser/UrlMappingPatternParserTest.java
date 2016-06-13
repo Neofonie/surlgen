@@ -39,7 +39,7 @@ public class UrlMappingPatternParserTest {
 
     @Test
     public void testStatic() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse(null, "/fooo");
+        final StaticUrlPattern parse = (StaticUrlPattern) UrlMappingParser.parse(null, "/fooo");
         assertEquals("StaticUrlPattern{string='/fooo'}", parse.toString());
         assertTrue(parse.matches("/fooo"));
         assertFalse(parse.matches("/foo"));
@@ -49,7 +49,7 @@ public class UrlMappingPatternParserTest {
 
     @Test
     public void testCompleteChoice() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse(null, "[/fooo/asdf]");
+        final Choice parse = (Choice) UrlMappingParser.parse(null, "[/fooo/asdf]");
         assertEquals("Choice{choice=StaticUrlPattern{string='/fooo/asdf'}}", parse.toString());
         assertTrue(parse.matches("/fooo/asdf"));
         assertFalse(parse.matches("/fooo/asdfD"));
@@ -61,7 +61,7 @@ public class UrlMappingPatternParserTest {
 
     @Test
     public void testMixed() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse(null, "/fooo[/asdf]");
+        final PatternList parse = (PatternList) UrlMappingParser.parse(null, "/fooo[/asdf]");
         assertEquals("PatternList{list=[StaticUrlPattern{string='/fooo'}, Choice{choice=StaticUrlPattern{string='/asdf'}}]}",
                 parse.toString());
 
@@ -74,7 +74,7 @@ public class UrlMappingPatternParserTest {
 
     @Test
     public void testComplex() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse(null, "/fooo[[/asdf]/fooo[/asdf]]");
+        final PatternList parse = (PatternList) UrlMappingParser.parse(null, "/fooo[[/asdf]/fooo[/asdf]]");
         assertEquals("PatternList{list=[" +
                         "StaticUrlPattern{string='/fooo'}, " +
                         "Choice{choice=PatternList{list=[Choice{choice=StaticUrlPattern{string='/asdf'}}, " +
@@ -96,7 +96,7 @@ public class UrlMappingPatternParserTest {
 
     @Test
     public void testMultipleChoices() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse(null, "[/a][/b][/c][/d]");
+        final PatternList parse = (PatternList) UrlMappingParser.parse(null, "[/a][/b][/c][/d]");
         assertEquals("PatternList{list=[Choice{choice=StaticUrlPattern{string='/a'}}, " +
                         "Choice{choice=StaticUrlPattern{string='/b'}}, " +
                         "Choice{choice=StaticUrlPattern{string='/c'}}, " +
@@ -123,7 +123,7 @@ public class UrlMappingPatternParserTest {
 
     @Test
     public void testGreedy() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse(null, "[/a[/b]][/a[/b/c]]");
+        final PatternList parse = (PatternList) UrlMappingParser.parse(null, "[/a[/b]][/a[/b/c]]");
         assertEquals("PatternList{list=[Choice{choice=PatternList{list=[StaticUrlPattern{string='/a'}, Choice{choice=StaticUrlPattern{string='/b'}}]}}, Choice{choice=PatternList{list=[StaticUrlPattern{string='/a'}, Choice{choice=StaticUrlPattern{string='/b/c'}}]}}]}",
                 parse.toString());
 
@@ -146,7 +146,7 @@ public class UrlMappingPatternParserTest {
 
     @Test
     public void testComplex2() throws Exception {
-        final UrlPattern parse = UrlMappingParser.parse(null, "/fooo[/bar[-asdf]]");
+        final PatternList parse = (PatternList) UrlMappingParser.parse(null, "/fooo[/bar[-asdf]]");
         assertEquals("PatternList{list=[StaticUrlPattern{string='/fooo'}, Choice{choice=PatternList{list=[StaticUrlPattern{string='/bar'}, Choice{choice=StaticUrlPattern{string='-asdf'}}]}}]}",
                 parse.toString());
 
@@ -164,7 +164,7 @@ public class UrlMappingPatternParserTest {
 
         mappingConfig.put("int", mapping);
 
-        final UrlPattern parse = UrlMappingParser.parse(mappingConfig, "{foo:int}");
+        final MappingPattern parse = (MappingPattern) UrlMappingParser.parse(mappingConfig, "{foo:int}");
         assertNotNull(parse);
         assertEquals("Mapping{name='foo', type='int'}",
                 parse.toString());

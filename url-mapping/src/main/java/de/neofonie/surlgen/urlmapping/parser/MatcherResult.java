@@ -24,50 +24,30 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+public class MatcherResult {
 
-class Choice extends AbstractUrlPattern implements UrlPattern {
+    private static final Logger logger = LoggerFactory.getLogger(MatcherResult.class);
+    private final String string;
 
-    private static final Logger logger = LoggerFactory.getLogger(Choice.class);
-    private final AbstractUrlPattern choice;
-
-    public Choice(AbstractUrlPattern choice) {
-        this.choice = choice;
+    public MatcherResult(String string) {
+        Preconditions.checkNotNull(string);
+        this.string = string;
     }
 
-    @Override
-    protected MatcherResult matches(MatcherResult matcherResult) {
-        final MatcherResult matches = choice.matches(matcherResult);
-        if (matches != null) {
-            return matches;
-        }
-
-        return matcherResult;
-//        final String remaining = matcher.getRemaining();
-//        if (!remaining.startsWith(string)) {
-//            return false;
-//        }
-//        matcher.consume(string);
-//        return true;
+    public String getString() {
+        return string;
     }
 
-    @Override
-    public List<List<Matcher>> getCompleteHierarchy() {
-
-        List<List<Matcher>> result = new ArrayList<>();
-        result.addAll(choice.getCompleteHierarchy());
-        result.add(new ArrayList<>());
-        return result;
+    public MatcherResult consume(String string) {
+        Preconditions.checkArgument(this.string.startsWith(string));
+        return new MatcherResult(this.string.substring(string.length()));
     }
 
-    @Override
-    public String toString() {
-        return "Choice{" +
-                "choice=" + choice +
-                '}';
+    public boolean allConsumed() {
+        return string.isEmpty();
     }
 }

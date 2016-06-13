@@ -27,6 +27,7 @@ package de.neofonie.surlgen.urlmapping.parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 
 class PatternList extends AbstractUrlPattern implements UrlPattern {
@@ -47,15 +48,8 @@ class PatternList extends AbstractUrlPattern implements UrlPattern {
     }
 
     @Override
-    public String toString() {
-        return "PatternList{" +
-                "list=" + list +
-                '}';
-    }
-
-    @Override
-    protected Matcher matches(Matcher matcher) {
-        Matcher current = matcher;
+    protected MatcherResult matches(MatcherResult matcherResult) {
+        MatcherResult current = matcherResult;
         for (AbstractUrlPattern abstractUrlPattern : list) {
             current = abstractUrlPattern.matches(current);
             if (current == null) {
@@ -63,5 +57,17 @@ class PatternList extends AbstractUrlPattern implements UrlPattern {
             }
         }
         return current;
+    }
+
+    @Override
+    public List<List<Matcher>> getCompleteHierarchy() {
+        return Collections.singletonList(Collections.singletonList(this));
+    }
+
+    @Override
+    public String toString() {
+        return "PatternList{" +
+                "list=" + list +
+                '}';
     }
 }
