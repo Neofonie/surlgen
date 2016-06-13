@@ -26,45 +26,17 @@ package de.neofonie.surlgen.urlmapping;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+public class UrlMappingService {
 
-public class UrlMappingFilter implements Filter {
+    private static final Logger logger = LoggerFactory.getLogger(UrlMappingService.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(UrlMappingFilter.class);
+    public String getInternalRequestURI(String externalRequestURI) {
 
-    private UrlMappingService urlMappingService;
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-
+        return null;
     }
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (!(request instanceof HttpServletRequest)) {
-            chain.doFilter(request, response);
-            return;
-        }
-        HttpServletRequest req = (HttpServletRequest) request;
-        final String mapping = urlMappingService.getInternalRequestURI(req.getRequestURI());
-        if (mapping == null) {
-            chain.doFilter(request, response);
-            return;
-        }
-        request.getRequestDispatcher(mapping).include(request, response);
-    }
-
-    @Override
-    public void destroy() {
-
-    }
-
-    @Autowired
-    public void setUrlMappingService(UrlMappingService urlMappingService) {
-        this.urlMappingService = urlMappingService;
+    public String getExternalRequestURI(String internalRequestURI) {
+        return null;
     }
 }
