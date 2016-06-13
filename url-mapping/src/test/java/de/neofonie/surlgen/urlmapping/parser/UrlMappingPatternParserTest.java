@@ -26,11 +26,17 @@ package de.neofonie.surlgen.urlmapping.parser;
 
 import de.neofonie.surlgen.urlmapping.mapping.Mapping;
 import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
+import org.easymock.EasyMock;
 import org.junit.Test;
+
+import java.util.AbstractMap;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
 public class UrlMappingPatternParserTest {
+
     @Test
     public void testStatic() throws Exception {
         final UrlPattern parse = UrlMappingParser.parse(null, "/fooo");
@@ -89,6 +95,56 @@ public class UrlMappingPatternParserTest {
     }
 
     @Test
+    public void testMultipleChoices() throws Exception {
+        final UrlPattern parse = UrlMappingParser.parse(null, "[/a][/b][/c][/d]");
+        assertEquals("PatternList{list=[Choice{choice=StaticUrlPattern{string='/a'}}, " +
+                        "Choice{choice=StaticUrlPattern{string='/b'}}, " +
+                        "Choice{choice=StaticUrlPattern{string='/c'}}, " +
+                        "Choice{choice=StaticUrlPattern{string='/d'}}]}",
+                parse.toString());
+
+        assertTrue(parse.matches("/a/b/c/d"));
+        assertTrue(parse.matches("/a/b/c"));
+        assertTrue(parse.matches("/a/b/d"));
+        assertTrue(parse.matches("/a/b"));
+        assertTrue(parse.matches("/a/c/d"));
+        assertTrue(parse.matches("/a/c"));
+        assertTrue(parse.matches("/a/d"));
+        assertTrue(parse.matches("/a"));
+        assertTrue(parse.matches("/b/c/d"));
+        assertTrue(parse.matches("/b/c"));
+        assertTrue(parse.matches("/b/d"));
+        assertTrue(parse.matches("/b"));
+        assertTrue(parse.matches("/c/d"));
+        assertTrue(parse.matches("/c"));
+        assertTrue(parse.matches("/d"));
+        assertTrue(parse.matches(""));
+    }
+
+    @Test
+    public void testGreedy() throws Exception {
+        final UrlPattern parse = UrlMappingParser.parse(null, "[/a[/b]][/a[/b/c]]");
+        assertEquals("PatternList{list=[Choice{choice=PatternList{list=[StaticUrlPattern{string='/a'}, Choice{choice=StaticUrlPattern{string='/b'}}]}}, Choice{choice=PatternList{list=[StaticUrlPattern{string='/a'}, Choice{choice=StaticUrlPattern{string='/b/c'}}]}}]}",
+                parse.toString());
+
+        assertFalse(parse.matches("/a/b/c/d"));
+
+        //TODO: IS WRONG!!!
+        assertFalse(parse.matches("/a/b/c"));
+        assertTrue(parse.matches("/a/b"));
+        assertFalse(parse.matches("/a/c"));
+        assertTrue(parse.matches("/a"));
+        assertFalse(parse.matches("/b/c"));
+        assertFalse(parse.matches("/b"));
+        assertFalse(parse.matches("/c"));
+        assertTrue(parse.matches(""));
+
+        assertTrue(parse.matches("/a/a/b/c"));
+        assertTrue(parse.matches("/a/b/a/b/c"));
+
+    }
+
+    @Test
     public void testComplex2() throws Exception {
         final UrlPattern parse = UrlMappingParser.parse(null, "/fooo[/bar[-asdf]]");
         assertEquals("PatternList{list=[StaticUrlPattern{string='/fooo'}, Choice{choice=PatternList{list=[StaticUrlPattern{string='/bar'}, Choice{choice=StaticUrlPattern{string='-asdf'}}]}}]}",
@@ -103,18 +159,37 @@ public class UrlMappingPatternParserTest {
     @Test
     public void testMapping_Simple() throws Exception {
         final MappingConfig mappingConfig = new MappingConfig();
-        mappingConfig.put("int", new Mapping() {
 
-        });
+        final Mapping mapping = EasyMock.createMock(Mapping.class);
+
+        mappingConfig.put("int", mapping);
 
         final UrlPattern parse = UrlMappingParser.parse(mappingConfig, "{foo:int}");
         assertNotNull(parse);
         assertEquals("Mapping{name='foo', type='int'}",
                 parse.toString());
 
-        assertFalse(parse.matches("/fooo/asdf"));
-        assertTrue(parse.matches("/fooo"));
-        assertTrue(parse.matches("/fooo/bar"));
-        assertTrue(parse.matches("/fooo/bar-asdf"));
+        EasyMock.expect(mapping.getMatches("fooo/asdf")).andReturn(Collections.emptyList());
+        EasyMock.expect(mapping.getMatches("fooo")).andReturn(Arrays.asList(
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo", "12")
+        ));
+        EasyMock.expect(mapping.getMatches("fooo/bar")).andReturn(Arrays.asList(
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo", "12"),
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar", "13")
+        ));
+        EasyMock.expect(mapping.getMatches("fooo/bar-asdf")).andReturn(Arrays.asList(
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar-asdf", "12"),
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar", "13")
+        ));
+//        EasyMock.expect(mapping.getMatches("/fooo/asdf")).andReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<String, String>()));
+//        EasyMock.expect(mapping.getMatches("/fooo/asdf")).andReturn(Collections.emptyList());
+
+        EasyMock.replay(mapping);
+        assertFalse(parse.matches("fooo/asdf"));
+        assertTrue(parse.matches("fooo"));
+        //TODO: YES - GREEDY
+        assertFalse(parse.matches("fooo/bar"));
+        assertTrue(parse.matches("fooo/bar-asdf"));
+        EasyMock.verify(mapping);
     }
 }

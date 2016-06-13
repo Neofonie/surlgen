@@ -29,6 +29,9 @@ import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Map;
+
 class MappingPattern extends AbstractUrlPattern {
 
     private static final Logger logger = LoggerFactory.getLogger(MappingPattern.class);
@@ -44,6 +47,16 @@ class MappingPattern extends AbstractUrlPattern {
 
     @Override
     protected Matcher matches(Matcher matcher) {
+
+        final Collection<Map.Entry<String, String>> matches = mapping.getMatches(matcher.getString());
+        if (matches == null) {
+            return null;
+        }
+
+        for (Map.Entry<String, String> match : matches) {
+            final Matcher consume = matcher.consume(match.getKey());
+            if (consume != null) return consume;
+        }
         return null;
     }
 
