@@ -26,7 +26,6 @@ package de.neofonie.surlgen.urlmapping.parser;
 
 import de.neofonie.surlgen.urlmapping.mapping.Mapping;
 import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
-import de.neofonie.surlgen.urlmapping.tree.MappingTree;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
@@ -60,8 +59,8 @@ public class MappingPatternTest {
                 new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar", "13")
         ));
         EasyMock.expect(mapping.getMatches("fooo/bar-asdf")).andReturn(Arrays.asList(
-                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar-asdf", "12"),
-                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar", "13")
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar-asdf", "14"),
+                new AbstractMap.SimpleImmutableEntry<String, String>("fooo/bar", "15")
         ));
 //        EasyMock.expect(mapping.getMatches("/fooo/asdf")).andReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<String, String>()));
 //        EasyMock.expect(mapping.getMatches("/fooo/asdf")).andReturn(Collections.emptyList());
@@ -71,12 +70,19 @@ public class MappingPatternTest {
 
         EasyMock.replay(mapping);
         assertEquals(mappingTree.matches("fooo/asdf"), null);
-        assertEquals(mappingTree.matches("fooo"), "SUCCESS");
+        assertTrue("Params{params={foo=[12]}}", mappingTree.matches("fooo"));
         //TODO: YES - GREEDY
         assertEquals(mappingTree.matches("fooo/bar"), null);
-        assertEquals(mappingTree.matches("fooo/bar-asdf"), "SUCCESS");
+        assertTrue("Params{params={foo=[14]}}", mappingTree.matches("fooo/bar-asdf"));
         EasyMock.verify(mapping);
     }
+
+    public static void assertTrue(String params, MatcherResult<String> pattern) throws ParseException {
+//        assertEquals(pattern, "SUCCESS");
+        assertEquals("SUCCESS", pattern.getValue());
+        assertEquals(params, pattern.getParams().toString());
+    }
+
 
     private static MappingTree<String> createMappingTree(UrlPattern urlPattern) {
         MappingTree<String> mappingTree = new MappingTree<>();

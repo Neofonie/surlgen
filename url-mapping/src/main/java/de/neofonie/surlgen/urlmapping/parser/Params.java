@@ -24,6 +24,7 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +35,33 @@ public class Params {
     private static final Logger logger = LoggerFactory.getLogger(Params.class);
     private final Map<String, List<String>> params = new HashMap<>();
 
-    public void add(String key, String value) {
+    public Params() {
+    }
+
+    public Params(Params params) {
+        this.addAll(params);
+    }
+
+    public Params add(String key, String value) {
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(value);
         params.computeIfAbsent(key, t -> new ArrayList<String>()).add(value);
+        return this;
+    }
+
+    public Params addAll(String key, Collection<String> value) {
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(value);
+
+        params.computeIfAbsent(key, t -> new ArrayList<String>()).addAll(value);
+        return this;
+    }
+
+    public Params addAll(Params params) {
+        for (Map.Entry<String, List<String>> s : params.params.entrySet()) {
+            addAll(s.getKey(), s.getValue());
+        }
+        return this;
     }
 
     @Override
@@ -59,5 +85,9 @@ public class Params {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(values);
+    }
+
+    public Params copy() {
+        return new Params(this);
     }
 }

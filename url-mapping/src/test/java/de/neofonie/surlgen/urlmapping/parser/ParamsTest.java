@@ -32,8 +32,7 @@ public class ParamsTest {
 
     @Test
     public void testAdd() throws Exception {
-        Params params = new Params();
-        params.add("A", "12");
+        Params params = new Params().add("A", "12");
 
         assertEquals("Params{params={A=[12]}}", params.toString());
         assertEquals("12", params.getValue("A"));
@@ -45,9 +44,7 @@ public class ParamsTest {
 
     @Test
     public void testAdd2() throws Exception {
-        Params params = new Params();
-        params.add("A", "12");
-        params.add("A", "13");
+        Params params = new Params().add("A", "12").add("A", "13");
 
         assertEquals("Params{params={A=[12, 13]}}", params.toString());
         assertEquals("12", params.getValue("A"));
@@ -55,5 +52,21 @@ public class ParamsTest {
 
         assertEquals("[12, 13]", params.getValues("A").toString());
         assertEquals("[]", params.getValues("a").toString());
+    }
+
+    @Test
+    public void testAddAll() throws Exception {
+        Params params = new Params().add("A", "12").add("C", "2").add("A", "13").addAll(new Params().add("A", "14").add("B", "1"));
+
+        assertEquals("Params{params={A=[12, 13, 14], B=[1], C=[2]}}", params.toString());
+    }
+
+    @Test
+    public void testCopy() throws Exception {
+        Params params = new Params().add("A", "12");
+
+        assertEquals("Params{params={A=[12]}}", params.toString());
+        assertEquals("Params{params={A=[12], C=[13]}}", params.copy().add("C", "13").toString());
+        assertEquals("Params{params={A=[12]}}", params.toString());
     }
 }

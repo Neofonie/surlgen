@@ -22,12 +22,9 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.urlmapping.tree;
+package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
-import de.neofonie.surlgen.urlmapping.parser.Matcher;
-import de.neofonie.surlgen.urlmapping.parser.MatcherResult;
-import de.neofonie.surlgen.urlmapping.parser.UrlPattern;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +55,9 @@ public class MappingTree<T> {
         }
         Preconditions.checkArgument(!matcherList.isEmpty());
         final Iterator<Matcher> iterator = matcherList.iterator();
-        Node<T> node = null;
         List<Node<T>> nodes = root;
         Preconditions.checkArgument(iterator.hasNext());
+        Node<T> node = null;
         while (iterator.hasNext()) {
             final Matcher next = iterator.next();
             node = getNode(next, nodes);
@@ -98,17 +95,17 @@ public class MappingTree<T> {
         return stringBuilder.toString();
     }
 
-    public T matches(String value) {
+    public MatcherResult<T> matches(String value) {
         if (value.isEmpty()) {
-            return rootValue;
+            return MatcherResult.create(this.rootValue, new Params());
         }
 
         for (Node<T> node : root) {
-            final MatcherResult matcherResult = new MatcherResult(value);
+            final MatcherProcessingCommand matcherProcessingCommand = new MatcherProcessingCommand(value);
 //            final MatcherResult matches = matches(matcherResult);
 //            return matches != null && matches.allConsumed();
 
-            T t = node.resolve(matcherResult);
+            MatcherResult<T> t = node.resolve(matcherProcessingCommand);
             if (t != null) {
                 return t;
             }
@@ -167,16 +164,16 @@ public class MappingTree<T> {
                     '}';
         }
 
-        public T resolve(MatcherResult matcherResult) {
-            final MatcherResult matches = urlPattern.matches(matcherResult);
+        public MatcherResult<T> resolve(MatcherProcessingCommand matcherProcessingCommand) {
+            final MatcherProcessingCommand matches = urlPattern.matches(matcherProcessingCommand);
             if (matches == null) {
                 return null;
             }
             if (matches.allConsumed()) {
-                return this.value;
+                return MatcherResult.create(this.value, matches.getParams());
             }
             for (Node<T> node : childs) {
-                T t = node.resolve(matches);
+                MatcherResult<T> t = node.resolve(matches);
                 if (t != null) {
                     return t;
                 }

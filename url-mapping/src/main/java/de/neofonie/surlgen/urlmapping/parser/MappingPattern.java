@@ -48,16 +48,18 @@ class MappingPattern extends AbstractUrlPattern {
     }
 
     @Override
-    public MatcherResult matches(MatcherResult matcherResult) {
+    public MatcherProcessingCommand matches(MatcherProcessingCommand matcherProcessingCommand) {
 
-        final Collection<Map.Entry<String, String>> matches = mapping.getMatches(matcherResult.getString());
+        final Collection<Map.Entry<String, String>> matches = mapping.getMatches(matcherProcessingCommand.getString());
         if (matches == null) {
             return null;
         }
 
         for (Map.Entry<String, String> match : matches) {
-            final MatcherResult consume = matcherResult.consume(match.getKey());
-            if (consume != null) return consume;
+            final MatcherProcessingCommand consume = matcherProcessingCommand.consume(match.getKey(), name, match.getValue());
+            if (consume != null) {
+                return consume;
+            }
         }
         return null;
     }

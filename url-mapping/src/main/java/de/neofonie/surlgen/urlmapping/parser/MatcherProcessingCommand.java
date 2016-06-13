@@ -24,10 +24,41 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
-public interface Matcher {
+import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-//    boolean matches(String string);
+class MatcherProcessingCommand {
 
-    abstract MatcherProcessingCommand matches(MatcherProcessingCommand matcherProcessingCommand);
+    private static final Logger logger = LoggerFactory.getLogger(MatcherProcessingCommand.class);
+    private final String string;
+    private final Params params = new Params();
 
+    public MatcherProcessingCommand(String string) {
+        Preconditions.checkNotNull(string);
+        this.string = string;
+    }
+
+    public String getString() {
+        return string;
+    }
+
+    public MatcherProcessingCommand consume(String string) {
+        Preconditions.checkArgument(this.string.startsWith(string));
+        return new MatcherProcessingCommand(this.string.substring(string.length()));
+    }
+
+    public boolean allConsumed() {
+        return string.isEmpty();
+    }
+
+    public MatcherProcessingCommand consume(String string, String key, String value) {
+        final MatcherProcessingCommand result = consume(string);
+        result.params.add(key, value);
+        return result;
+    }
+
+    public Params getParams() {
+        return params;
+    }
 }

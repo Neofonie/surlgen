@@ -22,9 +22,8 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.urlmapping.tree;
+package de.neofonie.surlgen.urlmapping.parser;
 
-import de.neofonie.surlgen.urlmapping.parser.UrlMappingParser;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

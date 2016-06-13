@@ -50,12 +50,12 @@ class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
     }
 
     @Override
-    public MatcherResult matches(MatcherResult matcherResult) {
-        final String remaining = matcherResult.getString();
+    public MatcherProcessingCommand matches(MatcherProcessingCommand matcherProcessingCommand) {
+        final String remaining = matcherProcessingCommand.getString();
         if (!remaining.startsWith(string)) {
             return null;
         }
-        return matcherResult.consume(string);
+        return matcherProcessingCommand.consume(string);
     }
 
     @Override

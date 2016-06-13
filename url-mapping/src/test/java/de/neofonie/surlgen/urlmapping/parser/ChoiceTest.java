@@ -24,7 +24,6 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
-import de.neofonie.surlgen.urlmapping.tree.MappingTree;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -149,11 +148,12 @@ public class ChoiceTest {
         assertTrue(parse.matches("/fooo/bar-asdf"));
     }
 
-    public static void assertTrue(String pattern) throws ParseException {
-        assertEquals("SUCCESS", pattern);
+    public static void assertTrue(MatcherResult<String> pattern) throws ParseException {
+        assertEquals("SUCCESS", pattern.getValue());
+        assertEquals("Params{params={}}", pattern.getParams().toString());
     }
 
-    public static void assertFalse(String pattern) throws ParseException {
+    public static void assertFalse(MatcherResult<String> pattern) throws ParseException {
         assertEquals(null, pattern);
     }
 

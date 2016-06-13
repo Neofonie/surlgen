@@ -25,29 +25,40 @@
 package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class MatcherResult {
+class MatcherResult<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MatcherResult.class);
-    private final String string;
+    private final T value;
+    private final Params params;
 
-    public MatcherResult(String string) {
-        Preconditions.checkNotNull(string);
-        this.string = string;
+    static <T> MatcherResult<T> create(T value, Params params) {
+        if (value != null) {
+            return new MatcherResult<>(value, params);
+        } else {
+            return null;
+        }
     }
 
-    public String getString() {
-        return string;
+    MatcherResult(T value, Params params) {
+        Preconditions.checkNotNull(value);
+        Preconditions.checkNotNull(params);
+        this.value = value;
+        this.params = params.copy();
     }
 
-    public MatcherResult consume(String string) {
-        Preconditions.checkArgument(this.string.startsWith(string));
-        return new MatcherResult(this.string.substring(string.length()));
+    public T getValue() {
+        return value;
     }
 
-    public boolean allConsumed() {
-        return string.isEmpty();
+    public Params getParams() {
+        return params;
+    }
+
+    @Override
+    public String toString() {
+        return "MatcherResult{" +
+                "value=" + value +
+                ", params=" + params +
+                '}';
     }
 }
