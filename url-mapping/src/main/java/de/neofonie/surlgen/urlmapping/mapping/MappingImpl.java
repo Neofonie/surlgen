@@ -22,43 +22,25 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.urlmapping.parser;
+package de.neofonie.surlgen.urlmapping.mapping;
 
-import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class MatcherResult<T> {
+import java.util.Collection;
+import java.util.Map;
 
-    private final T value;
-    private final Params params;
+public class MappingImpl implements Mapping {
 
-    static <T> MatcherResult<T> create(T value, Params params) {
-        if (value != null) {
-            return new MatcherResult<>(value, params);
-        } else {
-            return null;
-        }
-    }
+    private static final Logger logger = LoggerFactory.getLogger(MappingImpl.class);
+    private final TernarySearchTree<String> map = new TernarySearchTree<>();
 
-    private MatcherResult(T value, Params params) {
-        Preconditions.checkNotNull(value);
-        Preconditions.checkNotNull(params);
-        this.value = value;
-        this.params = params.copy();
-    }
-
-    public T getValue() {
-        return value;
-    }
-
-    public Params getParams() {
-        return params;
+    public MappingImpl(Map<String, String> map) {
+        this.map.putAll(map);
     }
 
     @Override
-    public String toString() {
-        return "MatcherResult{" +
-                "value=" + value +
-                ", params=" + params +
-                '}';
+    public Collection<Map.Entry<String, String>> getMatches(String string) {
+        return map.headMap(string);
     }
 }
