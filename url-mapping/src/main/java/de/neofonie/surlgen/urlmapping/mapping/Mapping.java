@@ -24,5 +24,10 @@
 
 package de.neofonie.surlgen.urlmapping.mapping;
 
+import java.util.Collection;
+import java.util.Map;
+
 public interface Mapping {
+
+    Collection<Map.Entry<String, String>> getMatches(String string);
 }
