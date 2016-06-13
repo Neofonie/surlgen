@@ -39,12 +39,12 @@ public class ChoiceTest {
         assertEquals("<SUCCESS>\n" +
                 "StaticUrlPattern{string='/fooo/asdf'}<SUCCESS>\n", parse.toStringHierarchy());
 
-        assertTrue(parse.matches("/fooo/asdf"));
-        assertFalse(parse.matches("/fooo/asdfD"));
-        assertTrue(parse.matches(""));
-        assertFalse(parse.matches("/foo"));
-        assertFalse(parse.matches("/foooo"));
-        assertFalse(parse.matches("/fooO"));
+        assertTrue(parse.resolve("/fooo/asdf"));
+        assertFalse(parse.resolve("/fooo/asdfD"));
+        assertTrue(parse.resolve(""));
+        assertFalse(parse.resolve("/foo"));
+        assertFalse(parse.resolve("/foooo"));
+        assertFalse(parse.resolve("/fooO"));
     }
 
     @Test
@@ -54,11 +54,11 @@ public class ChoiceTest {
         assertEquals("PatternList{list=[StaticUrlPattern{string='/fooo'}, Choice{choice=StaticUrlPattern{string='/asdf'}}]}",
                 urlPattern.toString());
 
-        assertTrue(parse.matches("/fooo/asdf"));
-        assertTrue(parse.matches("/fooo"));
-        assertFalse(parse.matches(""));
-        assertFalse(parse.matches("/fooo/asd"));
-        assertFalse(parse.matches("/fooo/asdf/"));
+        assertTrue(parse.resolve("/fooo/asdf"));
+        assertTrue(parse.resolve("/fooo"));
+        assertFalse(parse.resolve(""));
+        assertFalse(parse.resolve("/fooo/asd"));
+        assertFalse(parse.resolve("/fooo/asdf/"));
     }
 
     @Test
@@ -72,16 +72,16 @@ public class ChoiceTest {
                         "Choice{choice=StaticUrlPattern{string='/asdf'}}]}}]}",
                 urlPattern.toString());
 
-        assertFalse(parse.matches("/fooo/asdf"));
-        assertTrue(parse.matches("/fooo"));
-        assertTrue(parse.matches("/fooo/fooo"));
-        assertTrue(parse.matches("/fooo/fooo"));
-        assertTrue(parse.matches("/fooo/fooo/asdf"));
-        assertTrue(parse.matches("/fooo/asdf/fooo"));
-        assertTrue(parse.matches("/fooo/asdf/fooo/asdf"));
-        assertFalse(parse.matches("/fooo/asdf2/fooo/asdf"));
-        assertFalse(parse.matches("/fooo/asdf/asdf"));
-        assertFalse(parse.matches("/fooo/asdf/asdf"));
+        assertFalse(parse.resolve("/fooo/asdf"));
+        assertTrue(parse.resolve("/fooo"));
+        assertTrue(parse.resolve("/fooo/fooo"));
+        assertTrue(parse.resolve("/fooo/fooo"));
+        assertTrue(parse.resolve("/fooo/fooo/asdf"));
+        assertTrue(parse.resolve("/fooo/asdf/fooo"));
+        assertTrue(parse.resolve("/fooo/asdf/fooo/asdf"));
+        assertFalse(parse.resolve("/fooo/asdf2/fooo/asdf"));
+        assertFalse(parse.resolve("/fooo/asdf/asdf"));
+        assertFalse(parse.resolve("/fooo/asdf/asdf"));
     }
 
     @Test
@@ -94,22 +94,22 @@ public class ChoiceTest {
                         "Choice{choice=StaticUrlPattern{string='/d'}}]}",
                 urlPattern.toString());
 
-        assertTrue(parse.matches("/a/b/c/d"));
-        assertTrue(parse.matches("/a/b/c"));
-        assertTrue(parse.matches("/a/b/d"));
-        assertTrue(parse.matches("/a/b"));
-        assertTrue(parse.matches("/a/c/d"));
-        assertTrue(parse.matches("/a/c"));
-        assertTrue(parse.matches("/a/d"));
-        assertTrue(parse.matches("/a"));
-        assertTrue(parse.matches("/b/c/d"));
-        assertTrue(parse.matches("/b/c"));
-        assertTrue(parse.matches("/b/d"));
-        assertTrue(parse.matches("/b"));
-        assertTrue(parse.matches("/c/d"));
-        assertTrue(parse.matches("/c"));
-        assertTrue(parse.matches("/d"));
-        assertTrue(parse.matches(""));
+        assertTrue(parse.resolve("/a/b/c/d"));
+        assertTrue(parse.resolve("/a/b/c"));
+        assertTrue(parse.resolve("/a/b/d"));
+        assertTrue(parse.resolve("/a/b"));
+        assertTrue(parse.resolve("/a/c/d"));
+        assertTrue(parse.resolve("/a/c"));
+        assertTrue(parse.resolve("/a/d"));
+        assertTrue(parse.resolve("/a"));
+        assertTrue(parse.resolve("/b/c/d"));
+        assertTrue(parse.resolve("/b/c"));
+        assertTrue(parse.resolve("/b/d"));
+        assertTrue(parse.resolve("/b"));
+        assertTrue(parse.resolve("/c/d"));
+        assertTrue(parse.resolve("/c"));
+        assertTrue(parse.resolve("/d"));
+        assertTrue(parse.resolve(""));
     }
 
     @Test
@@ -119,20 +119,20 @@ public class ChoiceTest {
         assertEquals("PatternList{list=[Choice{choice=PatternList{list=[StaticUrlPattern{string='/a/b'}, Choice{choice=StaticUrlPattern{string='/f'}}]}}, Choice{choice=PatternList{list=[StaticUrlPattern{string='/a'}, Choice{choice=StaticUrlPattern{string='/b/c'}}]}}]}",
                 urlPattern.toString());
 
-        assertFalse(parse.matches("/a/b/c/d"));
+        assertFalse(parse.resolve("/a/b/c/d"));
 
         //TODO: IS WRONG!!!
-        assertTrue(parse.matches("/a/b/c"));
-        assertTrue(parse.matches("/a/b"));
-        assertFalse(parse.matches("/a/c"));
-        assertTrue(parse.matches("/a"));
-        assertFalse(parse.matches("/b/c"));
-        assertFalse(parse.matches("/b"));
-        assertFalse(parse.matches("/c"));
-        assertTrue(parse.matches(""));
+        assertTrue(parse.resolve("/a/b/c"));
+        assertTrue(parse.resolve("/a/b"));
+        assertFalse(parse.resolve("/a/c"));
+        assertTrue(parse.resolve("/a"));
+        assertFalse(parse.resolve("/b/c"));
+        assertFalse(parse.resolve("/b"));
+        assertFalse(parse.resolve("/c"));
+        assertTrue(parse.resolve(""));
 
-        assertTrue(parse.matches("/a/b/a/b/c"));
-        assertTrue(parse.matches("/a/b/a/b/c"));
+        assertTrue(parse.resolve("/a/b/a/b/c"));
+        assertTrue(parse.resolve("/a/b/a/b/c"));
     }
 
     @Test
@@ -142,10 +142,10 @@ public class ChoiceTest {
         assertEquals("PatternList{list=[StaticUrlPattern{string='/fooo'}, Choice{choice=PatternList{list=[StaticUrlPattern{string='/bar'}, Choice{choice=StaticUrlPattern{string='-asdf'}}]}}]}",
                 urlPattern.toString());
 
-        assertFalse(parse.matches("/fooo/asdf"));
-        assertTrue(parse.matches("/fooo"));
-        assertTrue(parse.matches("/fooo/bar"));
-        assertTrue(parse.matches("/fooo/bar-asdf"));
+        assertFalse(parse.resolve("/fooo/asdf"));
+        assertTrue(parse.resolve("/fooo"));
+        assertTrue(parse.resolve("/fooo/bar"));
+        assertTrue(parse.resolve("/fooo/bar-asdf"));
     }
 
     public static void assertTrue(MatcherResult<String> pattern) throws ParseException {

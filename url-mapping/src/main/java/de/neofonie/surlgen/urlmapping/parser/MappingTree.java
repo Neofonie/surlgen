@@ -66,10 +66,6 @@ public class MappingTree<T> {
         node.value = value;
     }
 
-    public void resolve(String value) {
-
-    }
-
     private static <T> Node<T> getNode(final Matcher next, List<Node<T>> nodes) {
         for (Node<T> node : nodes) {
             if (node.urlPattern.equals(next)) {
@@ -92,16 +88,13 @@ public class MappingTree<T> {
         return stringBuilder.toString();
     }
 
-    public MatcherResult<T> matches(String value) {
+    public MatcherResult<T> resolve(String value) {
         if (value.isEmpty()) {
             return MatcherResult.create(rootValue, new Params());
         }
 
         for (Node<T> node : root) {
-            final MatcherProcessingCommand matcherProcessingCommand = new MatcherProcessingCommand(value);
-//            final MatcherResult matches = matches(matcherResult);
-//            return matches != null && matches.allConsumed();
-
+            final MatcherProcessingCommand matcherProcessingCommand = new MatcherProcessingCommand(value, new Params());
             MatcherResult<T> t = node.resolve(matcherProcessingCommand);
             if (t != null) {
                 return t;

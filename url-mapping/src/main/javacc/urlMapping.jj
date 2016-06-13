@@ -31,7 +31,7 @@ TOKEN: {
 }
 
 <MAPPING> TOKEN: {
-    < PARAM : (["a"-"z", "A"-"Z"])+ >
+    < PARAM : (["a"-"z", "A"-"Z", "0"-"9"])+ >
     | <MAP : ":">
     | <END : "}">:DEFAULT
 }

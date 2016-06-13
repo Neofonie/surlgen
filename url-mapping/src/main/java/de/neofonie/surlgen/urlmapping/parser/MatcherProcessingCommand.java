@@ -29,11 +29,12 @@ import com.google.common.base.Preconditions;
 class MatcherProcessingCommand {
 
     private final String string;
-    private final Params params = new Params();
+    private final Params params;
 
-    MatcherProcessingCommand(String string) {
+    MatcherProcessingCommand(String string, Params params) {
         Preconditions.checkNotNull(string);
         this.string = string;
+        this.params = params;
     }
 
     public String getString() {
@@ -42,7 +43,8 @@ class MatcherProcessingCommand {
 
     public MatcherProcessingCommand consume(String string) {
         Preconditions.checkArgument(this.string.startsWith(string));
-        return new MatcherProcessingCommand(this.string.substring(string.length()));
+        final String substring = this.string.substring(string.length());
+        return new MatcherProcessingCommand(substring, params.copy());
     }
 
     public boolean allConsumed() {
