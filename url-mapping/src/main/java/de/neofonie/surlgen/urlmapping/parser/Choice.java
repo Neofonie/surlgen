@@ -30,30 +30,30 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-class Choice extends AbstractUrlPattern implements UrlPattern {
+class Choice implements UrlPattern {
 
     private static final Logger logger = LoggerFactory.getLogger(Choice.class);
-    private final AbstractUrlPattern choice;
+    private final UrlPattern choice;
 
-    public Choice(AbstractUrlPattern choice) {
+    public Choice(UrlPattern choice) {
         this.choice = choice;
     }
 
-    @Override
-    protected MatcherResult matches(MatcherResult matcherResult) {
-        final MatcherResult matches = choice.matches(matcherResult);
-        if (matches != null) {
-            return matches;
-        }
-
-        return matcherResult;
-//        final String remaining = matcher.getRemaining();
-//        if (!remaining.startsWith(string)) {
-//            return false;
+//    @Override
+//    protected MatcherResult matches(MatcherResult matcherResult) {
+//        final MatcherResult matches = choice.matches(matcherResult);
+//        if (matches != null) {
+//            return matches;
 //        }
-//        matcher.consume(string);
-//        return true;
-    }
+//
+//        return matcherResult;
+////        final String remaining = matcher.getRemaining();
+////        if (!remaining.startsWith(string)) {
+////            return false;
+////        }
+////        matcher.consume(string);
+////        return true;
+//    }
 
     @Override
     public List<List<Matcher>> getCompleteHierarchy() {

@@ -24,21 +24,165 @@
 
 package de.neofonie.surlgen.urlmapping.tree;
 
+import com.google.common.base.Preconditions;
+import de.neofonie.surlgen.urlmapping.parser.Matcher;
+import de.neofonie.surlgen.urlmapping.parser.MatcherResult;
 import de.neofonie.surlgen.urlmapping.parser.UrlPattern;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MappingTree<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(MappingTree.class);
-    private Node<T> root;
+    private List<Node<T>> root = new ArrayList<>();
+    private T rootValue;
+
+    public void addEntry(UrlPattern urlPattern, T value) {
+        final List<List<Matcher>> completeHierarchy = urlPattern.getCompleteHierarchy();
+        for (List<Matcher> matcherList : completeHierarchy) {
+            addEntry(matcherList, value);
+        }
+    }
+
+    private void addEntry(List<Matcher> matcherList, T value) {
+        Preconditions.checkNotNull(value);
+        if (matcherList.isEmpty()) {
+            Preconditions.checkArgument(rootValue == null, String.format("Root-Node has already a value"));
+            rootValue = value;
+            return;
+        }
+        Preconditions.checkArgument(!matcherList.isEmpty());
+        final Iterator<Matcher> iterator = matcherList.iterator();
+        Node<T> node = null;
+        List<Node<T>> nodes = root;
+        Preconditions.checkArgument(iterator.hasNext());
+        while (iterator.hasNext()) {
+            final Matcher next = iterator.next();
+            node = getNode(next, nodes);
+            Preconditions.checkNotNull(node);
+            nodes = node.childs;
+        }
+        Preconditions.checkNotNull(node);
+        Preconditions.checkArgument(node.value == null, String.format("Node %s has already a value", node));
+        node.value = value;
+    }
+
+    public void resolve(String value) {
+
+    }
+
+    private static <T> Node<T> getNode(final Matcher next, List<Node<T>> nodes) {
+        for (Node<T> node : nodes) {
+            if (node.urlPattern.equals(next)) {
+                return node;
+            }
+        }
+        final Node<T> result = new Node<>(next);
+        nodes.add(result);
+        return result;
+    }
+
+    public String toStringHierarchy() {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (rootValue != null) {
+            stringBuilder.append("<").append(rootValue).append(">").append("\n");
+        }
+        for (Node<T> node : root) {
+            node.appendStringHierarchy(stringBuilder, 1);
+        }
+        return stringBuilder.toString();
+    }
+
+    public T matches(String value) {
+        if (value.isEmpty()) {
+            return rootValue;
+        }
+
+        for (Node<T> node : root) {
+            final MatcherResult matcherResult = new MatcherResult(value);
+//            final MatcherResult matches = matches(matcherResult);
+//            return matches != null && matches.allConsumed();
+
+            T t = node.resolve(matcherResult);
+            if (t != null) {
+                return t;
+            }
+        }
+        return null;
+    }
 
     private static class Node<T> {
 
-        private final UrlPattern urlPattern;
+        private final Matcher urlPattern;
+        private List<Node<T>> childs = new ArrayList<>();
+        private T value;
 
-        private Node(UrlPattern urlPattern) {
+        private Node(Matcher urlPattern) {
             this.urlPattern = urlPattern;
         }
+
+        private void appendStringHierarchy(StringBuilder stringBuilder, int deep) {
+            stringBuilder.append(urlPattern.toString());
+            if (value != null) {
+                stringBuilder.append('<').append(value).append('>');
+            }
+            if (childs.isEmpty()) {
+                stringBuilder.append('\n');
+                return;
+            }
+            if (childs.size() == 1) {
+                if (value != null) {
+                    if (stringBuilder.charAt(stringBuilder.length() - 1) != '\n') {
+                        stringBuilder.append('\n');
+                    }
+                    stringBuilder.append(StringUtils.repeat(" ", deep * 4));
+                    deep++;
+                }
+                for (Node<T> node : childs) {
+                    node.appendStringHierarchy(stringBuilder, deep);
+                }
+                return;
+            }
+
+            for (Node<T> node : childs) {
+                if (stringBuilder.charAt(stringBuilder.length() - 1) != '\n') {
+                    stringBuilder.append('\n');
+                }
+                stringBuilder.append(StringUtils.repeat(" ", deep * 4));
+                node.appendStringHierarchy(stringBuilder, deep + 1);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "Node{" +
+                    "urlPattern=" + urlPattern +
+//                    ", childs=" + childs +
+                    ", value=" + value +
+                    '}';
+        }
+
+        public T resolve(MatcherResult matcherResult) {
+            final MatcherResult matches = urlPattern.matches(matcherResult);
+            if (matches == null) {
+                return null;
+            }
+            if (matches.allConsumed()) {
+                return this.value;
+            }
+            for (Node<T> node : childs) {
+                T t = node.resolve(matches);
+                if (t != null) {
+                    return t;
+                }
+            }
+            return null;
+        }
     }
+
 }

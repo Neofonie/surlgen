@@ -31,12 +31,11 @@ abstract class AbstractUrlPattern implements UrlPattern, Matcher {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractUrlPattern.class);
 
-    @Override
-    public final boolean matches(String string) {
-        final MatcherResult matcherResult = new MatcherResult(string);
-        final MatcherResult matches = matches(matcherResult);
-        return matches != null && matches.allConsumed();
-    }
+//    @Override
+//    public final boolean matches(String string) {
+//        final MatcherResult matcherResult = new MatcherResult(string);
+//        final MatcherResult matches = matches(matcherResult);
+//        return matches != null && matches.allConsumed();
+//    }
 
-    protected abstract MatcherResult matches(MatcherResult matcherResult);
 }

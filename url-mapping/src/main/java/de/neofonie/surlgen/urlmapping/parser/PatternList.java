@@ -27,19 +27,19 @@ package de.neofonie.surlgen.urlmapping.parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-class PatternList extends AbstractUrlPattern implements UrlPattern {
+class PatternList implements UrlPattern {
 
     private static final Logger logger = LoggerFactory.getLogger(PatternList.class);
-    private final List<AbstractUrlPattern> list;
+    private final List<UrlPattern> list;
 
-    PatternList(List<AbstractUrlPattern> list) {
+    PatternList(List<UrlPattern> list) {
         this.list = list;
     }
 
-    public static AbstractUrlPattern create(List<AbstractUrlPattern> list) {
+    public static UrlPattern create(List<UrlPattern> list) {
         if (list.size() == 1) {
             return list.get(0);
         }
@@ -47,21 +47,37 @@ class PatternList extends AbstractUrlPattern implements UrlPattern {
         return new PatternList(list);
     }
 
-    @Override
-    protected MatcherResult matches(MatcherResult matcherResult) {
-        MatcherResult current = matcherResult;
-        for (AbstractUrlPattern abstractUrlPattern : list) {
-            current = abstractUrlPattern.matches(current);
-            if (current == null) {
-                return null;
-            }
-        }
-        return current;
-    }
+//    @Override
+//    protected MatcherResult matches(MatcherResult matcherResult) {
+//        MatcherResult current = matcherResult;
+//        for (UrlPattern abstractUrlPattern : list) {
+//            current = abstractUrlPattern.matches(current);
+//            if (current == null) {
+//                return null;
+//            }
+//        }
+//        return current;
+//    }
 
     @Override
     public List<List<Matcher>> getCompleteHierarchy() {
-        return Collections.singletonList(Collections.singletonList(this));
+        List<List<Matcher>> current = new ArrayList<>();
+        current.add(new ArrayList<>());
+
+        for (UrlPattern urlPattern : list) {
+            List<List<Matcher>> newOne = new ArrayList<>();
+            final List<List<Matcher>> completeHierarchy = urlPattern.getCompleteHierarchy();
+            for (List<Matcher> c : current) {
+                for (List<Matcher> comp : completeHierarchy) {
+                    List<Matcher> tmp = new ArrayList<>();
+                    tmp.addAll(c);
+                    tmp.addAll(comp);
+                    newOne.add(tmp);
+                }
+            }
+            current = newOne;
+        }
+        return current;
     }
 
     @Override

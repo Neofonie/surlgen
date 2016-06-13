@@ -36,32 +36,32 @@ TOKEN: {
     | <END : "}">:DEFAULT
 }
 
-private AbstractUrlPattern start(MappingConfig mappingConfig): {AbstractUrlPattern t;} {
+private UrlPattern start(MappingConfig mappingConfig): {UrlPattern t;} {
     t = tokenList(mappingConfig) <EOF>
     {return t;}
 }
 
-private AbstractUrlPattern tokenList(MappingConfig mappingConfig): {AbstractUrlPattern p; List<AbstractUrlPattern> list = new ArrayList();} {
+private UrlPattern tokenList(MappingConfig mappingConfig): {UrlPattern p; List<UrlPattern> list = new ArrayList();} {
     ( p = token(mappingConfig) { list.add(p); } )+
     { return PatternList.create(list); }
 }
 
-private AbstractUrlPattern token(MappingConfig mappingConfig): {Token t; AbstractUrlPattern p;} {
+private UrlPattern token(MappingConfig mappingConfig): {Token t; UrlPattern p;} {
     ( "[" p = tokenList(mappingConfig) "]" { return new Choice(p); }
     | "{" p = mapping(mappingConfig) <END> { return p; }
     | p = anything() { return p; }
     )
 }
 
-private AbstractUrlPattern choice(): {AbstractUrlPattern p;} {
+private UrlPattern choice(): {UrlPattern p;} {
     "[" p = anything() "]" { return new Choice(p); }
 }
 
-private AbstractUrlPattern mapping(MappingConfig mappingConfig): {Token name;Token type;} {
+private UrlPattern mapping(MappingConfig mappingConfig): {Token name;Token type;} {
     name = <PARAM> <MAP> type = <PARAM> { return new MappingPattern(name.image, type.image, mappingConfig); }
 }
 
-private AbstractUrlPattern anything(): {Token t; StringBuilder sb = new StringBuilder();} {
+private UrlPattern anything(): {Token t; StringBuilder sb = new StringBuilder();} {
  t = <ANYTHING>
  { return new StaticUrlPattern(t.image); }
 }

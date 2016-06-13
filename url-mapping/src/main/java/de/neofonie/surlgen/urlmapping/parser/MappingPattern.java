@@ -48,7 +48,7 @@ class MappingPattern extends AbstractUrlPattern {
     }
 
     @Override
-    protected MatcherResult matches(MatcherResult matcherResult) {
+    public MatcherResult matches(MatcherResult matcherResult) {
 
         final Collection<Map.Entry<String, String>> matches = mapping.getMatches(matcherResult.getString());
         if (matches == null) {

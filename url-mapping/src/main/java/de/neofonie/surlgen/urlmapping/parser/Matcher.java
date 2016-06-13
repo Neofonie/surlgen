@@ -26,6 +26,8 @@ package de.neofonie.surlgen.urlmapping.parser;
 
 public interface Matcher {
 
-    boolean matches(String string);
+//    boolean matches(String string);
+
+    abstract MatcherResult matches(MatcherResult matcherResult);
 
 }

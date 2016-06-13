@@ -24,6 +24,7 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,8 @@ class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
     private final String string;
 
     public StaticUrlPattern(String string) {
+        Preconditions.checkNotNull(string);
+        Preconditions.checkArgument(!string.isEmpty());
         this.string = string;
     }
 
@@ -58,5 +61,22 @@ class StaticUrlPattern extends AbstractUrlPattern implements UrlPattern {
     @Override
     public List<List<Matcher>> getCompleteHierarchy() {
         return Collections.singletonList(Collections.singletonList(this));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StaticUrlPattern that = (StaticUrlPattern) o;
+
+        if (!string.equals(that.string)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return string.hashCode();
     }
 }

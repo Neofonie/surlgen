@@ -26,6 +26,7 @@ package de.neofonie.surlgen.urlmapping.parser;
 
 import de.neofonie.surlgen.urlmapping.mapping.Mapping;
 import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
+import de.neofonie.surlgen.urlmapping.tree.MappingTree;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
@@ -33,7 +34,8 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class MappingPatternTest {
     @Test
@@ -44,10 +46,10 @@ public class MappingPatternTest {
 
         mappingConfig.put("int", mapping);
 
-        final MappingPattern parse = (MappingPattern) UrlMappingParser.parse(mappingConfig, "{foo:int}");
-        assertNotNull(parse);
+        final UrlPattern urlPattern = UrlMappingParser.parse(mappingConfig, "{foo:int}");
+        assertNotNull(urlPattern);
         assertEquals("Mapping{name='foo', type='int'}",
-                parse.toString());
+                urlPattern.toString());
 
         EasyMock.expect(mapping.getMatches("fooo/asdf")).andReturn(Collections.emptyList());
         EasyMock.expect(mapping.getMatches("fooo")).andReturn(Arrays.asList(
@@ -64,12 +66,21 @@ public class MappingPatternTest {
 //        EasyMock.expect(mapping.getMatches("/fooo/asdf")).andReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<String, String>()));
 //        EasyMock.expect(mapping.getMatches("/fooo/asdf")).andReturn(Collections.emptyList());
 
+        final MappingTree<String> mappingTree = createMappingTree(urlPattern);
+        assertEquals("Mapping{name='foo', type='int'}<SUCCESS>\n", mappingTree.toStringHierarchy());
+
         EasyMock.replay(mapping);
-        assertFalse(parse.matches("fooo/asdf"));
-        assertTrue(parse.matches("fooo"));
+        assertEquals(mappingTree.matches("fooo/asdf"), null);
+        assertEquals(mappingTree.matches("fooo"), "SUCCESS");
         //TODO: YES - GREEDY
-        assertFalse(parse.matches("fooo/bar"));
-        assertTrue(parse.matches("fooo/bar-asdf"));
+        assertEquals(mappingTree.matches("fooo/bar"), null);
+        assertEquals(mappingTree.matches("fooo/bar-asdf"), "SUCCESS");
         EasyMock.verify(mapping);
+    }
+
+    private static MappingTree<String> createMappingTree(UrlPattern urlPattern) {
+        MappingTree<String> mappingTree = new MappingTree<>();
+        mappingTree.addEntry(urlPattern, "SUCCESS");
+        return mappingTree;
     }
 }
