@@ -46,8 +46,6 @@ class Choice implements UrlPattern {
 
     @Override
     public String toString() {
-        return "Choice{" +
-                "choice=" + choice +
-                '}';
+        return String.format("Choice{%s}", choice);
     }
 }

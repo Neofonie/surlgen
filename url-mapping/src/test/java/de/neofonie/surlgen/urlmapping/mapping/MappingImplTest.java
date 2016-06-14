@@ -43,12 +43,12 @@ public class MappingImplTest {
         assertEquals("[]", mapping.getMatches("foobar").toString());
 
         map = new HashMap<>();
-        map.put("a", "1");
-        map.put("aa", "2");
-        map.put("ab", "3");
-        map.put("b", "4");
-        map.put("ba", "5");
-        map.put("bb", "6");
+        map.put("1", "a");
+        map.put("2", "aa");
+        map.put("3", "ab");
+        map.put("4", "b");
+        map.put("5", "ba");
+        map.put("6", "bb");
         mapping = new MappingImpl(map);
         assertEquals("[a=1]", mapping.getMatches("a").toString());
         assertEquals("[a=1, ab=3]", mapping.getMatches("ab").toString());

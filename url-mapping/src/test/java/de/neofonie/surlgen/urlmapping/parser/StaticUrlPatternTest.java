@@ -33,7 +33,7 @@ public class StaticUrlPatternTest {
     @Test
     public void testStatic() throws Exception {
         final StaticUrlPattern parse = (StaticUrlPattern) UrlMappingParser.parse(null, "/fooo");
-        assertEquals("StaticUrlPattern{string='/fooo'}", parse.toString());
+        assertEquals("StaticUrlPattern{/fooo}", parse.toString());
 //        assertTrue(parse.matches("/fooo"));
 //        assertFalse(parse.matches("/foo"));
 //        assertFalse(parse.matches("/foooo"));

@@ -38,9 +38,11 @@ public class TernarySearchTree<T> {
         }
     }
 
-    public void put(String key, T value) {
+    public T put(String key, T value) {
         final Node<T> node = createNode(key);
+        T old = node.value;
         node.value = value;
+        return old;
     }
 
     private Node<T> createNode(String key) {

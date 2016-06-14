@@ -35,11 +35,11 @@ public class MappingTreeTest {
         MappingTree<String> mappingTree = new MappingTree<>();
 
         mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo"), "A");
-        assertEquals("StaticUrlPattern{string='/fooo'}<A>\n", mappingTree.toStringHierarchy());
+        assertEquals("StaticUrlPattern{/fooo}<A>\n", mappingTree.toStringHierarchy());
 
         mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo/bar"), "B");
-        assertEquals("StaticUrlPattern{string='/fooo'}<A>\n" +
-                "StaticUrlPattern{string='/fooo/bar'}<B>\n", mappingTree.toStringHierarchy());
+        assertEquals("StaticUrlPattern{/fooo}<A>\n" +
+                "StaticUrlPattern{/fooo/bar}<B>\n", mappingTree.toStringHierarchy());
 
     }
 
@@ -47,7 +47,7 @@ public class MappingTreeTest {
     public void testDuplicate() throws Exception {
         MappingTree<String> mappingTree = new MappingTree<>();
         mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo"), "A");
-        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo"), "C");
+        mappingTree.addEntry(UrlMappingParser.parse(null, "[/fooo]"), "C");
     }
 
     @Test
@@ -55,28 +55,28 @@ public class MappingTreeTest {
         MappingTree<String> mappingTree = new MappingTree<>();
 
         mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo[/bar]"), "C");
-//        assertEquals("StaticUrlPattern{string='/fooo'}<C>\n" +
-//                "    StaticUrlPattern{string='/bar'}<C>\n", mappingTree.toStringHierarchy());
+//        assertEquals("StaticUrlPattern{/fooo}<C>\n" +
+//                "    StaticUrlPattern{/bar}<C>\n", mappingTree.toStringHierarchy());
 
         mappingTree.addEntry(UrlMappingParser.parse(null, "[/a][/b][/c][/d]"), "C");
         assertEquals("<C>\n" +
-                "StaticUrlPattern{string='/fooo'}<C>\n" +
-                "    StaticUrlPattern{string='/bar'}<C>\n" +
-                "StaticUrlPattern{string='/a'}<C>\n" +
-                "    StaticUrlPattern{string='/b'}<C>\n" +
-                "        StaticUrlPattern{string='/c'}<C>\n" +
-                "            StaticUrlPattern{string='/d'}<C>\n" +
-                "        StaticUrlPattern{string='/d'}<C>\n" +
-                "    StaticUrlPattern{string='/c'}<C>\n" +
-                "        StaticUrlPattern{string='/d'}<C>\n" +
-                "    StaticUrlPattern{string='/d'}<C>\n" +
-                "StaticUrlPattern{string='/b'}<C>\n" +
-                "    StaticUrlPattern{string='/c'}<C>\n" +
-                "        StaticUrlPattern{string='/d'}<C>\n" +
-                "    StaticUrlPattern{string='/d'}<C>\n" +
-                "StaticUrlPattern{string='/c'}<C>\n" +
-                "    StaticUrlPattern{string='/d'}<C>\n" +
-                "StaticUrlPattern{string='/d'}<C>\n", mappingTree.toStringHierarchy());
+                "StaticUrlPattern{/fooo}<C>\n" +
+                "    StaticUrlPattern{/bar}<C>\n" +
+                "StaticUrlPattern{/a}<C>\n" +
+                "    StaticUrlPattern{/b}<C>\n" +
+                "        StaticUrlPattern{/c}<C>\n" +
+                "            StaticUrlPattern{/d}<C>\n" +
+                "        StaticUrlPattern{/d}<C>\n" +
+                "    StaticUrlPattern{/c}<C>\n" +
+                "        StaticUrlPattern{/d}<C>\n" +
+                "    StaticUrlPattern{/d}<C>\n" +
+                "StaticUrlPattern{/b}<C>\n" +
+                "    StaticUrlPattern{/c}<C>\n" +
+                "        StaticUrlPattern{/d}<C>\n" +
+                "    StaticUrlPattern{/d}<C>\n" +
+                "StaticUrlPattern{/c}<C>\n" +
+                "    StaticUrlPattern{/d}<C>\n" +
+                "StaticUrlPattern{/d}<C>\n", mappingTree.toStringHierarchy());
         mappingTree.resolve("asdfas");
     }
 }

@@ -62,7 +62,8 @@ public class MappingTree<T> {
             nodes = node.childs;
         }
         Preconditions.checkNotNull(node);
-        Preconditions.checkArgument(node.value == null, String.format("Node %s has already a value", node));
+        Preconditions.checkArgument(node.value == null,
+                String.format("Duplicate URL-Patterns %s found %s - %s", node.urlPattern, node.value, value));
         node.value = value;
     }
 

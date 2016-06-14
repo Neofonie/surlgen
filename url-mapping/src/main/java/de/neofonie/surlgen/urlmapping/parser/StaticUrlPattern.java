@@ -41,9 +41,7 @@ class StaticUrlPattern implements UrlPattern, Matcher {
 
     @Override
     public String toString() {
-        return "StaticUrlPattern{" +
-                "string='" + string + '\'' +
-                '}';
+        return String.format("StaticUrlPattern{%s}", string);
     }
 
     @Override
