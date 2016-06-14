@@ -24,6 +24,7 @@
 
 package de.neofonie.surlgen.urlmapping;
 
+import de.neofonie.surlgen.urlmapping.parser.MatcherResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +51,12 @@ public class UrlMappingFilter implements Filter {
             return;
         }
         HttpServletRequest req = (HttpServletRequest) request;
-        final String mapping = urlMappingService.getInternalRequestURI(req.getRequestURI());
-        if (mapping == null) {
+        final MatcherResult<UrlRule> resolve = urlMappingService.resolve(req.getRequestURI());
+        if (resolve == null) {
             chain.doFilter(request, response);
             return;
         }
-        request.getRequestDispatcher(mapping).include(request, response);
+//        request.getRequestDispatcher(resolve).include(request, response);
     }
 
     @Override

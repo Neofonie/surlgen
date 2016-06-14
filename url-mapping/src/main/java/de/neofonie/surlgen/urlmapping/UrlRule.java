@@ -24,37 +24,42 @@
 
 package de.neofonie.surlgen.urlmapping;
 
-import de.neofonie.surlgen.urlmapping.parser.MappingTree;
-import de.neofonie.surlgen.urlmapping.parser.MatcherResult;
+import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
+import de.neofonie.surlgen.urlmapping.parser.ParseException;
+import de.neofonie.surlgen.urlmapping.parser.UrlMappingParser;
+import de.neofonie.surlgen.urlmapping.parser.UrlPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+public class UrlRule {
 
-public class UrlMappingService {
+    private static final Logger logger = LoggerFactory.getLogger(UrlRule.class);
+    private final UrlPattern urlPattern;
+    private final String internalUrl;
 
-    private static final Logger logger = LoggerFactory.getLogger(UrlMappingService.class);
-    //    private final List<UrlRule> urlRules;
-    private final MappingTree<UrlRule> mappingTree = new MappingTree<>();
-
-    public UrlMappingService(List<UrlRule> urlRules) {
-        for (UrlRule urlRule : urlRules) {
-            mappingTree.addEntry(urlRule.getUrlPattern(), urlRule);
-        }
+    public UrlRule(UrlPattern urlPattern, String internalUrl) {
+        this.urlPattern = urlPattern;
+        this.internalUrl = internalUrl;
     }
 
-    public MatcherResult<UrlRule> resolve(String externalRequestURI) {
-        MatcherResult<UrlRule> resolve = mappingTree.resolve(externalRequestURI);
-        return resolve;
-//        if (resolve == null) {
-//            return null;
-//        }
-//
-//        return resolve.getValue().getInternalUrl()+resolve.getParams().createQueryString();
+    public UrlRule(String urlPattern, MappingConfig mappingConfig, String internalUrl) throws ParseException {
+        this.internalUrl = internalUrl;
+        this.urlPattern = UrlMappingParser.parse(mappingConfig, urlPattern);
     }
 
-    public String getExternalRequestURI(String internalRequestURI) {
-        return null;
+    public UrlPattern getUrlPattern() {
+        return urlPattern;
     }
 
+    public String getInternalUrl() {
+        return internalUrl;
+    }
+
+    @Override
+    public String toString() {
+        return "UrlRule{" +
+                "urlPattern=" + urlPattern +
+                ", internalUrl='" + internalUrl + '\'' +
+                '}';
+    }
 }

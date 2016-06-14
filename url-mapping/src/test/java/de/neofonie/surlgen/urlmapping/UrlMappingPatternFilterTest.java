@@ -53,7 +53,7 @@ public class UrlMappingPatternFilterTest {
         EasyMock.expect(httpServletRequest.getRequestURI()).andReturn("/requestUri");
 
         filterChain.doFilter(httpServletRequest, response);
-        EasyMock.expect(urlMappingService.getInternalRequestURI("/requestUri")).andReturn(null);
+        EasyMock.expect(urlMappingService.resolve("/requestUri")).andReturn(null);
 
         EasyMock.replay(urlMappingService, filterChain, httpServletRequest);
         urlMappingFilter.doFilter(httpServletRequest, response, filterChain);
@@ -65,7 +65,7 @@ public class UrlMappingPatternFilterTest {
 
         EasyMock.expect(httpServletRequest.getRequestURI()).andReturn("/requestUri");
         RequestDispatcher requestDispatcher = EasyMock.createMock(RequestDispatcher.class);
-        EasyMock.expect(urlMappingService.getInternalRequestURI("/requestUri")).andReturn("/newMapping");
+        EasyMock.expect(urlMappingService.resolve("/requestUri")).andReturn("/newMapping");
         EasyMock.expect(httpServletRequest.getRequestDispatcher("/newMapping")).andReturn(requestDispatcher);
         requestDispatcher.include(httpServletRequest, response);
 
