@@ -25,47 +25,21 @@
 package de.neofonie.surlgen.urlmapping;
 
 import de.neofonie.surlgen.urlmapping.parser.MatcherResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.*;
+import javax.servlet.ServletException;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-public class UrlMappingFilter implements Filter {
+public enum ActionEnum {
 
-    private static final Logger logger = LoggerFactory.getLogger(UrlMappingFilter.class);
-
-    private UrlMappingService urlMappingService;
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-
-    }
-
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (!(request instanceof HttpServletRequest)) {
-            chain.doFilter(request, response);
-            return;
+    FORWARD {
+        @Override
+        public void handle(HttpServletRequest request, ServletResponse response, MatcherResult<UrlRule> resolve) throws ServletException, IOException {
+            String internalUrl = resolve.getInternalUrl();
+            request.getRequestDispatcher(internalUrl).include(request, response);
         }
-        HttpServletRequest req = (HttpServletRequest) request;
-        final MatcherResult<UrlRule> resolve = urlMappingService.resolve(req.getRequestURI());
-        if (resolve == null) {
-            chain.doFilter(request, response);
-            return;
-        }
-        resolve.getValue().getAction().handle(req, response, resolve);
-    }
+    };
 
-    @Override
-    public void destroy() {
-
-    }
-
-    @Autowired
-    public void setUrlMappingService(UrlMappingService urlMappingService) {
-        this.urlMappingService = urlMappingService;
-    }
+    public abstract void handle(HttpServletRequest request, ServletResponse response, MatcherResult<UrlRule> resolve) throws ServletException, IOException;
 }

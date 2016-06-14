@@ -54,17 +54,18 @@ public class UrlMappingServiceTest {
         mappingConfig.put("map2", new MappingImpl(map2));
 
 //        mappingConfig.put()
-        UrlRule urlRule3 = new UrlRule("/asaa", mappingConfig, "/intern2");
+        UrlRule urlRule3 = new UrlRule("/asaa", mappingConfig, ActionEnum.FORWARD, "/intern2");
         UrlMappingService urlMappingService = new UrlMappingService(Arrays.asList(
-                new UrlRule("/asdf", mappingConfig, "/intern1"),
-                new UrlRule("/asaa", mappingConfig, "/intern2"),
-                new UrlRule("/foo[/{m:map1}]", mappingConfig, "/intern3"),
-                new UrlRule("/foo[/{m:map1}][/{m:map2}]", mappingConfig, "/intern4")
+                new UrlRule("/asdf", mappingConfig, ActionEnum.FORWARD, "/intern1"),
+                new UrlRule("/asaa", mappingConfig, ActionEnum.FORWARD, "/intern2"),
+                new UrlRule("/foo[/{m:map1}]", mappingConfig, ActionEnum.FORWARD, "/intern3"),
+                new UrlRule("/foo/{m:map1}[/{b:map2}]", mappingConfig, ActionEnum.FORWARD, "/intern4")
         ));
         assertEquals(null, resolve(urlMappingService, "/unknown"));
         assertEquals("/intern1", resolve(urlMappingService, "/asdf"));
-        assertEquals("/intern3?m=1", resolve(urlMappingService, "/foo/foo"));
         assertEquals("/intern3", resolve(urlMappingService, "/foo"));
+        assertEquals("/intern3?m=1", resolve(urlMappingService, "/foo/foo"));
+        assertEquals("/intern4?b=1&m=1", resolve(urlMappingService, "/foo/foo/foo"));
     }
 
     private String resolve(UrlMappingService urlMappingService, String string) {
@@ -73,7 +74,7 @@ public class UrlMappingServiceTest {
             return null;
         }
 
-        return resolve.getValue().getInternalUrl() + resolve.getParams().createQueryString();
+        return resolve.getInternalUrl();
     }
 
     @Test

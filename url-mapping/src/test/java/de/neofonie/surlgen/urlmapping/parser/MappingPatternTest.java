@@ -24,6 +24,8 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import de.neofonie.surlgen.urlmapping.ActionEnum;
+import de.neofonie.surlgen.urlmapping.UrlRule;
 import de.neofonie.surlgen.urlmapping.mapping.Mapping;
 import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
 import de.neofonie.surlgen.urlmapping.mapping.MappingImpl;
@@ -49,8 +51,8 @@ public class MappingPatternTest {
                 urlPattern.toString());
 
         EasyMock.expect(mapping.getMatches("fooo/asdf")).andReturn(Collections.emptyList());
-        final MappingTree<String> mappingTree = createMappingTree(urlPattern);
-        assertEquals("Mapping{name='foo', type='int'}<SUCCESS>\n", mappingTree.toStringHierarchy());
+        final MappingTree<UrlRule> mappingTree = createMappingTree(urlPattern);
+        assertEquals("Mapping{name='foo', type='int'}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}>\n", mappingTree.toStringHierarchy());
 
         EasyMock.replay(mapping);
         assertEquals(mappingTree.resolve("fooo/asdf"), null);
@@ -118,9 +120,9 @@ public class MappingPatternTest {
                 new AbstractMap.SimpleImmutableEntry<String, String>("bar", "5")
         ));
 
-        final MappingTree<String> mappingTree = createMappingTree(urlPattern);
-        assertEquals("Mapping{name='key1', type='map1'}<SUCCESS>\n" +
-                "    StaticUrlPattern{/}Mapping{name='key2', type='map2'}<SUCCESS>\n", mappingTree.toStringHierarchy());
+        final MappingTree<UrlRule> mappingTree = createMappingTree(urlPattern);
+        assertEquals("Mapping{name='key1', type='map1'}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}>\n" +
+                "    StaticUrlPattern{/}Mapping{name='key2', type='map2'}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}>\n", mappingTree.toStringHierarchy());
 
         EasyMock.replay(map1, map2);
         assertEquals(mappingTree.resolve("fooobb"), null);
@@ -150,9 +152,9 @@ public class MappingPatternTest {
         assertEquals("[Mapping{name='key1', type='map1'}, Choice{[StaticUrlPattern{/}, Mapping{name='key2', type='map2'}]}]",
                 urlPattern.toString());
 
-        final MappingTree<String> mappingTree = createMappingTree(urlPattern);
-        assertEquals("Mapping{name='key1', type='map1'}<SUCCESS>\n" +
-                "    StaticUrlPattern{/}Mapping{name='key2', type='map2'}<SUCCESS>\n", mappingTree.toStringHierarchy());
+        final MappingTree<UrlRule> mappingTree = createMappingTree(urlPattern);
+        assertEquals("Mapping{name='key1', type='map1'}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}>\n" +
+                "    StaticUrlPattern{/}Mapping{name='key2', type='map2'}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}>\n", mappingTree.toStringHierarchy());
 
         assertEquals(mappingTree.resolve("fooobb"), null);
         assertTrue("Params{params={key1=[1]}}", mappingTree.resolve("fooo"));
@@ -160,14 +162,16 @@ public class MappingPatternTest {
         assertTrue("Params{params={key1=[3], key2=[5]}}", mappingTree.resolve("fooo/bar/bar"));
     }
 
-    public static void assertTrue(String params, MatcherResult<String> pattern) throws ParseException {
-        assertEquals("SUCCESS", pattern.getValue());
+    public static void assertTrue(String params, MatcherResult<UrlRule> pattern) throws ParseException {
+        assertEquals("UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}", pattern.getValue().toString());
         assertEquals(params, pattern.getParams().toString());
     }
 
-    private static MappingTree<String> createMappingTree(UrlPattern urlPattern) {
-        MappingTree<String> mappingTree = new MappingTree<>();
-        mappingTree.addEntry(urlPattern, "SUCCESS");
+    private static MappingTree<UrlRule> createMappingTree(UrlPattern urlPattern) throws ParseException {
+        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "SUCCESS", ActionEnum.FORWARD);
+
+        MappingTree<UrlRule> mappingTree = new MappingTree<>();
+        mappingTree.addEntry(urlPattern, C);
         return mappingTree;
     }
 }

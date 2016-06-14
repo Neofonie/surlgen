@@ -24,6 +24,8 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import de.neofonie.surlgen.urlmapping.ActionEnum;
+import de.neofonie.surlgen.urlmapping.UrlRule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -35,9 +37,9 @@ public class ChoiceTest {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "[/fooo/asdf]");
         assertEquals("Choice{StaticUrlPattern{/fooo/asdf}}", urlPattern.toString());
 
-        final MappingTree<String> parse = createMappingTree(urlPattern);
-        assertEquals("<SUCCESS>\n" +
-                "StaticUrlPattern{/fooo/asdf}<SUCCESS>\n", parse.toStringHierarchy());
+        final MappingTree<UrlRule> parse = createMappingTree(urlPattern);
+        assertEquals("<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}>\n" +
+                "StaticUrlPattern{/fooo/asdf}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}>\n", parse.toStringHierarchy());
 
         assertTrue(parse.resolve("/fooo/asdf"));
         assertFalse(parse.resolve("/fooo/asdfD"));
@@ -50,7 +52,7 @@ public class ChoiceTest {
     @Test
     public void testMixed() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "/fooo[/asdf]");
-        final MappingTree<String> parse = createMappingTree(urlPattern);
+        final MappingTree<UrlRule> parse = createMappingTree(urlPattern);
         assertEquals("[StaticUrlPattern{/fooo}, Choice{StaticUrlPattern{/asdf}}]",
                 urlPattern.toString());
 
@@ -64,7 +66,7 @@ public class ChoiceTest {
     @Test
     public void testComplex() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "/fooo[[/asdf]/fooo[/asdf]]");
-        final MappingTree<String> parse = createMappingTree(urlPattern);
+        final MappingTree<UrlRule> parse = createMappingTree(urlPattern);
         assertEquals("[" +
                         "StaticUrlPattern{/fooo}, " +
                         "Choice{[Choice{StaticUrlPattern{/asdf}}, " +
@@ -87,7 +89,7 @@ public class ChoiceTest {
     @Test
     public void testMultipleChoices() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "[/a][/b][/c][/d]");
-        final MappingTree<String> parse = createMappingTree(urlPattern);
+        final MappingTree<UrlRule> parse = createMappingTree(urlPattern);
         assertEquals("[Choice{StaticUrlPattern{/a}}, " +
                         "Choice{StaticUrlPattern{/b}}, " +
                         "Choice{StaticUrlPattern{/c}}, " +
@@ -115,7 +117,7 @@ public class ChoiceTest {
     @Test
     public void testGreedy() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "[/a/b[/f]][/a[/b/c]]");
-        final MappingTree<String> parse = createMappingTree(urlPattern);
+        final MappingTree<UrlRule> parse = createMappingTree(urlPattern);
         assertEquals("[Choice{[StaticUrlPattern{/a/b}, Choice{StaticUrlPattern{/f}}]}, Choice{[StaticUrlPattern{/a}, Choice{StaticUrlPattern{/b/c}}]}]",
                 urlPattern.toString());
 
@@ -137,7 +139,7 @@ public class ChoiceTest {
     @Test
     public void testComplex2() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "/fooo[/bar[-asdf]]");
-        final MappingTree<String> parse = createMappingTree(urlPattern);
+        final MappingTree<UrlRule> parse = createMappingTree(urlPattern);
         assertEquals("[StaticUrlPattern{/fooo}, Choice{[StaticUrlPattern{/bar}, Choice{StaticUrlPattern{-asdf}}]}]",
                 urlPattern.toString());
 
@@ -147,18 +149,20 @@ public class ChoiceTest {
         assertTrue(parse.resolve("/fooo/bar-asdf"));
     }
 
-    public static void assertTrue(MatcherResult<String> pattern) throws ParseException {
-        assertEquals("SUCCESS", pattern.getValue());
+    public static void assertTrue(MatcherResult<UrlRule> pattern) throws ParseException {
+        assertEquals("SUCCESS", pattern.getInternalUrl());
         assertEquals("Params{params={}}", pattern.getParams().toString());
     }
 
-    public static void assertFalse(MatcherResult<String> pattern) throws ParseException {
+    public static void assertFalse(MatcherResult<UrlRule> pattern) throws ParseException {
         assertEquals(null, pattern);
     }
 
-    private static MappingTree<String> createMappingTree(UrlPattern urlPattern) {
-        MappingTree<String> mappingTree = new MappingTree<>();
-        mappingTree.addEntry(urlPattern, "SUCCESS");
+    private static MappingTree<UrlRule> createMappingTree(UrlPattern urlPattern) throws ParseException {
+        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "SUCCESS", ActionEnum.FORWARD);
+
+        MappingTree<UrlRule> mappingTree = new MappingTree<>();
+        mappingTree.addEntry(urlPattern, C);
         return mappingTree;
     }
 }

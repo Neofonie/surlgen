@@ -24,6 +24,8 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import de.neofonie.surlgen.urlmapping.ActionEnum;
+import de.neofonie.surlgen.urlmapping.UrlRule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -32,34 +34,45 @@ public class MappingTreeTest {
 
     @Test
     public void testSimple() throws Exception {
-        MappingTree<String> mappingTree = new MappingTree<>();
+        MappingTree<UrlRule> mappingTree = new MappingTree<>();
 
-        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo"), "A");
-        assertEquals("StaticUrlPattern{/fooo}<A>\n", mappingTree.toStringHierarchy());
+        final UrlRule A = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "A", ActionEnum.FORWARD);
+        final UrlRule B = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "B", ActionEnum.FORWARD);
+        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "C", ActionEnum.FORWARD);
+        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo"), A);
+        assertEquals("StaticUrlPattern{/fooo}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='A'}>\n", mappingTree.toStringHierarchy());
 
-        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo/bar"), "B");
-        assertEquals("StaticUrlPattern{/fooo}<A>\n" +
-                "StaticUrlPattern{/fooo/bar}<B>\n", mappingTree.toStringHierarchy());
+        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo/bar"), B);
+        assertEquals("StaticUrlPattern{/fooo}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='A'}>\n" +
+                "StaticUrlPattern{/fooo/bar}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='B'}>\n", mappingTree.toStringHierarchy());
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testDuplicate() throws Exception {
-        MappingTree<String> mappingTree = new MappingTree<>();
-        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo"), "A");
-        mappingTree.addEntry(UrlMappingParser.parse(null, "[/fooo]"), "C");
+        final UrlRule A = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "A", ActionEnum.FORWARD);
+        final UrlRule B = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "B", ActionEnum.FORWARD);
+        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "C", ActionEnum.FORWARD);
+
+        MappingTree<UrlRule> mappingTree = new MappingTree<>();
+        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo"), A);
+        mappingTree.addEntry(UrlMappingParser.parse(null, "[/fooo]"), C);
     }
 
     @Test
     public void testChoice() throws Exception {
-        MappingTree<String> mappingTree = new MappingTree<>();
+        final UrlRule A = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "A", ActionEnum.FORWARD);
+        final UrlRule B = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "B", ActionEnum.FORWARD);
+        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "C", ActionEnum.FORWARD);
 
-        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo[/bar]"), "C");
+        MappingTree<UrlRule> mappingTree = new MappingTree<>();
+
+        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo[/bar]"), C);
 //        assertEquals("StaticUrlPattern{/fooo}<C>\n" +
 //                "    StaticUrlPattern{/bar}<C>\n", mappingTree.toStringHierarchy());
 
-        mappingTree.addEntry(UrlMappingParser.parse(null, "[/a][/b][/c][/d]"), "C");
-        assertEquals("<C>\n" +
+        mappingTree.addEntry(UrlMappingParser.parse(null, "[/a][/b][/c][/d]"), C);
+        assertEquals(("<C>\n" +
                 "StaticUrlPattern{/fooo}<C>\n" +
                 "    StaticUrlPattern{/bar}<C>\n" +
                 "StaticUrlPattern{/a}<C>\n" +
@@ -76,7 +89,9 @@ public class MappingTreeTest {
                 "    StaticUrlPattern{/d}<C>\n" +
                 "StaticUrlPattern{/c}<C>\n" +
                 "    StaticUrlPattern{/d}<C>\n" +
-                "StaticUrlPattern{/d}<C>\n", mappingTree.toStringHierarchy());
+                        "StaticUrlPattern{/d}<C>\n")
+                        .replace("<C>", "<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='C'}>"),
+                mappingTree.toStringHierarchy());
         mappingTree.resolve("asdfas");
     }
 }

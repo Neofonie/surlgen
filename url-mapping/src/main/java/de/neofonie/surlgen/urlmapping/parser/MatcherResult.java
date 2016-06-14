@@ -25,13 +25,14 @@
 package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
+import de.neofonie.surlgen.urlmapping.UrlRule;
 
-public class MatcherResult<T> {
+public class MatcherResult<T extends UrlRule> {
 
     private final T value;
     private final Params params;
 
-    static <T> MatcherResult<T> create(T value, Params params) {
+    static <T extends UrlRule> MatcherResult<T> create(T value, Params params) {
         if (value != null) {
             return new MatcherResult<>(value, params);
         } else {
@@ -52,6 +53,10 @@ public class MatcherResult<T> {
 
     public Params getParams() {
         return params;
+    }
+
+    public String getInternalUrl() {
+        return getValue().getInternalUrl() + getParams().createQueryString();
     }
 
     @Override

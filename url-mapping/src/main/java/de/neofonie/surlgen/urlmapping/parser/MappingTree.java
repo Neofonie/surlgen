@@ -25,13 +25,14 @@
 package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
+import de.neofonie.surlgen.urlmapping.UrlRule;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class MappingTree<T> {
+public class MappingTree<T extends UrlRule> {
 
     private final List<Node<T>> root = new ArrayList<>();
     private T rootValue;
@@ -67,7 +68,7 @@ public class MappingTree<T> {
         node.value = value;
     }
 
-    private static <T> Node<T> getNode(final Matcher next, List<Node<T>> nodes) {
+    private static <T extends UrlRule> Node<T> getNode(final Matcher next, List<Node<T>> nodes) {
         for (Node<T> node : nodes) {
             if (node.urlPattern.equals(next)) {
                 return node;
@@ -104,7 +105,7 @@ public class MappingTree<T> {
         return null;
     }
 
-    private static class Node<T> {
+    private static class Node<T extends UrlRule> {
 
         private final Matcher urlPattern;
         private final List<Node<T>> childs = new ArrayList<>();

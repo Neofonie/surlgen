@@ -24,25 +24,34 @@
 
 package de.neofonie.surlgen.urlmapping;
 
+import com.google.common.base.Preconditions;
 import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
 import de.neofonie.surlgen.urlmapping.parser.ParseException;
 import de.neofonie.surlgen.urlmapping.parser.UrlMappingParser;
 import de.neofonie.surlgen.urlmapping.parser.UrlPattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UrlRule {
 
-    private static final Logger logger = LoggerFactory.getLogger(UrlRule.class);
+    private final ActionEnum action;
     private final UrlPattern urlPattern;
     private final String internalUrl;
 
-    public UrlRule(UrlPattern urlPattern, String internalUrl) {
+    public UrlRule(UrlPattern urlPattern, String internalUrl, ActionEnum action) {
+        Preconditions.checkNotNull(urlPattern);
+        Preconditions.checkNotNull(internalUrl);
+        Preconditions.checkNotNull(action);
+        this.action = action;
         this.urlPattern = urlPattern;
         this.internalUrl = internalUrl;
     }
 
-    public UrlRule(String urlPattern, MappingConfig mappingConfig, String internalUrl) throws ParseException {
+    public UrlRule(String urlPattern, MappingConfig mappingConfig, ActionEnum action, String internalUrl) throws ParseException {
+        Preconditions.checkNotNull(urlPattern);
+        Preconditions.checkNotNull(internalUrl);
+        Preconditions.checkNotNull(action);
+        Preconditions.checkNotNull(mappingConfig);
+
+        this.action = action;
         this.internalUrl = internalUrl;
         this.urlPattern = UrlMappingParser.parse(mappingConfig, urlPattern);
     }
@@ -53,6 +62,10 @@ public class UrlRule {
 
     public String getInternalUrl() {
         return internalUrl;
+    }
+
+    public ActionEnum getAction() {
+        return action;
     }
 
     @Override

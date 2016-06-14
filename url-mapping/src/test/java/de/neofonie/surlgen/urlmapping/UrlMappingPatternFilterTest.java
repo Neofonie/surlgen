@@ -24,6 +24,7 @@
 
 package de.neofonie.surlgen.urlmapping;
 
+import de.neofonie.surlgen.urlmapping.parser.MatcherResult;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,12 +66,20 @@ public class UrlMappingPatternFilterTest {
 
         EasyMock.expect(httpServletRequest.getRequestURI()).andReturn("/requestUri");
         RequestDispatcher requestDispatcher = EasyMock.createMock(RequestDispatcher.class);
-        EasyMock.expect(urlMappingService.resolve("/requestUri")).andReturn("/newMapping");
-        EasyMock.expect(httpServletRequest.getRequestDispatcher("/newMapping")).andReturn(requestDispatcher);
-        requestDispatcher.include(httpServletRequest, response);
 
-        EasyMock.replay(urlMappingService, filterChain, httpServletRequest, requestDispatcher);
+        MatcherResult<UrlRule> matcherResult = EasyMock.createMock(MatcherResult.class);
+
+        UrlRule urlRule = EasyMock.createMock(UrlRule.class);
+        EasyMock.expect(matcherResult.getValue()).andReturn(urlRule);
+        ActionEnum action = EasyMock.createMock(ActionEnum.class);
+        EasyMock.expect(urlRule.getAction()).andReturn(action);
+        action.handle(httpServletRequest, response, matcherResult);
+        EasyMock.expect(urlMappingService.resolve("/requestUri")).andReturn(matcherResult);
+//        EasyMock.expect(httpServletRequest.getRequestDispatcher("/newMapping")).andReturn(requestDispatcher);
+//        requestDispatcher.include(httpServletRequest, response);
+
+        EasyMock.replay(urlMappingService, filterChain, httpServletRequest, requestDispatcher, matcherResult, urlRule, action);
         urlMappingFilter.doFilter(httpServletRequest, response, filterChain);
-        EasyMock.verify(urlMappingService, filterChain, httpServletRequest, requestDispatcher);
+        EasyMock.verify(urlMappingService, filterChain, httpServletRequest, requestDispatcher, matcherResult, urlRule, action);
     }
 }
