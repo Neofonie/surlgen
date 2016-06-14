@@ -51,7 +51,7 @@ public class ChoiceTest {
     public void testMixed() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "/fooo[/asdf]");
         final MappingTree<String> parse = createMappingTree(urlPattern);
-        assertEquals("PatternList{list=[StaticUrlPattern{/fooo}, Choice{StaticUrlPattern{/asdf}}]}",
+        assertEquals("[StaticUrlPattern{/fooo}, Choice{StaticUrlPattern{/asdf}}]",
                 urlPattern.toString());
 
         assertTrue(parse.resolve("/fooo/asdf"));
@@ -65,11 +65,11 @@ public class ChoiceTest {
     public void testComplex() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "/fooo[[/asdf]/fooo[/asdf]]");
         final MappingTree<String> parse = createMappingTree(urlPattern);
-        assertEquals("PatternList{list=[" +
+        assertEquals("[" +
                         "StaticUrlPattern{/fooo}, " +
-                        "Choice{PatternList{list=[Choice{StaticUrlPattern{/asdf}}, " +
+                        "Choice{[Choice{StaticUrlPattern{/asdf}}, " +
                         "StaticUrlPattern{/fooo}, " +
-                        "Choice{StaticUrlPattern{/asdf}}]}}]}",
+                        "Choice{StaticUrlPattern{/asdf}}]}]",
                 urlPattern.toString());
 
         assertFalse(parse.resolve("/fooo/asdf"));
@@ -88,10 +88,10 @@ public class ChoiceTest {
     public void testMultipleChoices() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "[/a][/b][/c][/d]");
         final MappingTree<String> parse = createMappingTree(urlPattern);
-        assertEquals("PatternList{list=[Choice{StaticUrlPattern{/a}}, " +
+        assertEquals("[Choice{StaticUrlPattern{/a}}, " +
                         "Choice{StaticUrlPattern{/b}}, " +
                         "Choice{StaticUrlPattern{/c}}, " +
-                        "Choice{StaticUrlPattern{/d}}]}",
+                        "Choice{StaticUrlPattern{/d}}]",
                 urlPattern.toString());
 
         assertTrue(parse.resolve("/a/b/c/d"));
@@ -116,7 +116,7 @@ public class ChoiceTest {
     public void testGreedy() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "[/a/b[/f]][/a[/b/c]]");
         final MappingTree<String> parse = createMappingTree(urlPattern);
-        assertEquals("PatternList{list=[Choice{PatternList{list=[StaticUrlPattern{/a/b}, Choice{StaticUrlPattern{/f}}]}}, Choice{PatternList{list=[StaticUrlPattern{/a}, Choice{StaticUrlPattern{/b/c}}]}}]}",
+        assertEquals("[Choice{[StaticUrlPattern{/a/b}, Choice{StaticUrlPattern{/f}}]}, Choice{[StaticUrlPattern{/a}, Choice{StaticUrlPattern{/b/c}}]}]",
                 urlPattern.toString());
 
         assertFalse(parse.resolve("/a/b/c/d"));
@@ -138,7 +138,7 @@ public class ChoiceTest {
     public void testComplex2() throws Exception {
         final UrlPattern urlPattern = UrlMappingParser.parse(null, "/fooo[/bar[-asdf]]");
         final MappingTree<String> parse = createMappingTree(urlPattern);
-        assertEquals("PatternList{list=[StaticUrlPattern{/fooo}, Choice{PatternList{list=[StaticUrlPattern{/bar}, Choice{StaticUrlPattern{-asdf}}]}}]}",
+        assertEquals("[StaticUrlPattern{/fooo}, Choice{[StaticUrlPattern{/bar}, Choice{StaticUrlPattern{-asdf}}]}]",
                 urlPattern.toString());
 
         assertFalse(parse.resolve("/fooo/asdf"));

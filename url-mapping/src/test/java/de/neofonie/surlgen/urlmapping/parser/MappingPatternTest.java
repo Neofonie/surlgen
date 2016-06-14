@@ -94,7 +94,7 @@ public class MappingPatternTest {
 
         final UrlPattern urlPattern = UrlMappingParser.parse(mappingConfig, "{key1:map1}[/{key2:map2}]");
         assertNotNull(urlPattern);
-        assertEquals("PatternList{list=[Mapping{name='key1', type='map1'}, Choice{PatternList{list=[StaticUrlPattern{/}, Mapping{name='key2', type='map2'}]}}]}",
+        assertEquals("[Mapping{name='key1', type='map1'}, Choice{[StaticUrlPattern{/}, Mapping{name='key2', type='map2'}]}]",
                 urlPattern.toString());
 
         EasyMock.expect(map1.getMatches("fooobb")).andReturn(Collections.emptyList());
@@ -147,7 +147,7 @@ public class MappingPatternTest {
 
         final UrlPattern urlPattern = UrlMappingParser.parse(mappingConfig, "{key1:map1}[/{key2:map2}]");
         assertNotNull(urlPattern);
-        assertEquals("PatternList{list=[Mapping{name='key1', type='map1'}, Choice{PatternList{list=[StaticUrlPattern{/}, Mapping{name='key2', type='map2'}]}}]}",
+        assertEquals("[Mapping{name='key1', type='map1'}, Choice{[StaticUrlPattern{/}, Mapping{name='key2', type='map2'}]}]",
                 urlPattern.toString());
 
         final MappingTree<String> mappingTree = createMappingTree(urlPattern);

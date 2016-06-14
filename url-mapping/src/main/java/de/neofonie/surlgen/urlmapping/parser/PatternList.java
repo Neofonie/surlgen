@@ -24,14 +24,18 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 class PatternList implements UrlPattern {
 
     private final List<UrlPattern> list;
 
     PatternList(List<UrlPattern> list) {
+        Preconditions.checkNotNull(list);
         this.list = list;
     }
 
@@ -66,8 +70,6 @@ class PatternList implements UrlPattern {
 
     @Override
     public String toString() {
-        return "PatternList{" +
-                "list=" + list +
-                '}';
+        return Objects.toString(list);
     }
 }
