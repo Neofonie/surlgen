@@ -30,4 +30,5 @@ public interface Matcher {
 
     List<MatcherProcessingCommand> matches(MatcherProcessingCommand matcherProcessingCommand);
 
+    String getParam();
 }

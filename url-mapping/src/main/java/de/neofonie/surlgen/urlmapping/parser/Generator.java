@@ -22,34 +22,47 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.urlmapping;
+package de.neofonie.surlgen.urlmapping.parser;
 
-import de.neofonie.surlgen.urlmapping.parser.MappingTree;
-import de.neofonie.surlgen.urlmapping.parser.MatcherResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class UrlMappingService {
+public class Generator implements Comparable<Generator> {
 
-    private static final Logger logger = LoggerFactory.getLogger(UrlMappingService.class);
-    //    private final List<UrlRule> urlRules;
-    private final MappingTree<UrlRule> mappingTree = new MappingTree<>();
+    private static final Logger logger = LoggerFactory.getLogger(Generator.class);
 
-    public UrlMappingService(List<UrlRule> urlRules) {
-        for (UrlRule urlRule : urlRules) {
-            mappingTree.addEntry(urlRule);
+    private final List<Matcher> matcherList;
+    private final Set<String> params = new HashSet<>();
+
+    public Generator(List<Matcher> matcherList) {
+        this.matcherList = matcherList;
+        for (Matcher matcher : matcherList) {
+            String param = matcher.getParam();
+            if (param != null) {
+                params.add(param);
+            }
         }
     }
 
-    public MatcherResult<UrlRule> resolve(String externalRequestURI) {
-        MatcherResult<UrlRule> resolve = mappingTree.resolve(externalRequestURI);
-        return resolve;
+    @Override
+    public int compareTo(Generator o) {
+        int compare = Integer.compare(o.params.size(), params.size());
+        if (compare != 0) {
+            return compare;
+        }
+        return Integer.compare(hashCode(), o.hashCode());
+
     }
 
-    public String getExternalRequestURI(String internalRequestURI) {
-        return null;
+    @Override
+    public String toString() {
+        return "Generator{" +
+                "matcherList=" + matcherList +
+                ", params=" + params +
+                '}';
     }
-
 }

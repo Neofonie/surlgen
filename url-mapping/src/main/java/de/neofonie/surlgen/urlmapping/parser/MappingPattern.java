@@ -59,6 +59,11 @@ class MappingPattern implements Matcher, UrlPattern {
     }
 
     @Override
+    public String getParam() {
+        return name;
+    }
+
+    @Override
     public List<List<Matcher>> getCompleteHierarchy() {
         return Collections.singletonList(Collections.singletonList(this));
     }

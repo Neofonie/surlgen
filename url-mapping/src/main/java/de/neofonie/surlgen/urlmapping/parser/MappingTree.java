@@ -28,19 +28,19 @@ import com.google.common.base.Preconditions;
 import de.neofonie.surlgen.urlmapping.UrlRule;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class MappingTree<T extends UrlRule> {
 
     private final List<Node<T>> root = new ArrayList<>();
     private T rootValue;
+    private final Collection<Generator> generators = new TreeSet<>();
 
-    public void addEntry(UrlPattern urlPattern, T value) {
-        final List<List<Matcher>> completeHierarchy = urlPattern.getCompleteHierarchy();
+    public void addEntry(T value) {
+        final List<List<Matcher>> completeHierarchy = value.getUrlPattern().getCompleteHierarchy();
         for (List<Matcher> matcherList : completeHierarchy) {
             addEntry(matcherList, value);
+            generators.add(new Generator(matcherList));
         }
     }
 

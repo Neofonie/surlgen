@@ -38,8 +38,8 @@ public class ChoiceTest {
         assertEquals("Choice{StaticUrlPattern{/fooo/asdf}}", urlPattern.toString());
 
         final MappingTree<UrlRule> parse = createMappingTree(urlPattern);
-        assertEquals("<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}>\n" +
-                "StaticUrlPattern{/fooo/asdf}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='SUCCESS'}>\n", parse.toStringHierarchy());
+        assertEquals("<UrlRule{urlPattern=Choice{StaticUrlPattern{/fooo/asdf}}, internalUrl='SUCCESS'}>\n" +
+                "StaticUrlPattern{/fooo/asdf}<UrlRule{urlPattern=Choice{StaticUrlPattern{/fooo/asdf}}, internalUrl='SUCCESS'}>\n", parse.toStringHierarchy());
 
         assertTrue(parse.resolve("/fooo/asdf"));
         assertFalse(parse.resolve("/fooo/asdfD"));
@@ -159,10 +159,10 @@ public class ChoiceTest {
     }
 
     private static MappingTree<UrlRule> createMappingTree(UrlPattern urlPattern) throws ParseException {
-        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "SUCCESS", ActionEnum.FORWARD);
+        final UrlRule urlRule = new UrlRule(urlPattern, "SUCCESS", ActionEnum.FORWARD);
 
         MappingTree<UrlRule> mappingTree = new MappingTree<>();
-        mappingTree.addEntry(urlPattern, C);
+        mappingTree.addEntry(urlRule);
         return mappingTree;
     }
 }

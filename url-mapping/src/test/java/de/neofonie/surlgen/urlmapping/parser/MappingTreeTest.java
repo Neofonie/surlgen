@@ -37,60 +37,56 @@ public class MappingTreeTest {
         MappingTree<UrlRule> mappingTree = new MappingTree<>();
 
         final UrlRule A = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "A", ActionEnum.FORWARD);
-        final UrlRule B = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "B", ActionEnum.FORWARD);
-        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "C", ActionEnum.FORWARD);
-        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo"), A);
+        final UrlRule B = new UrlRule(UrlMappingParser.parse(null, "/fooo/bar"), "B", ActionEnum.FORWARD);
+        mappingTree.addEntry(A);
         assertEquals("StaticUrlPattern{/fooo}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='A'}>\n", mappingTree.toStringHierarchy());
 
-        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo/bar"), B);
+        mappingTree.addEntry(B);
         assertEquals("StaticUrlPattern{/fooo}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='A'}>\n" +
-                "StaticUrlPattern{/fooo/bar}<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='B'}>\n", mappingTree.toStringHierarchy());
+                "StaticUrlPattern{/fooo/bar}<UrlRule{urlPattern=StaticUrlPattern{/fooo/bar}, internalUrl='B'}>\n", mappingTree.toStringHierarchy());
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testDuplicate() throws Exception {
         final UrlRule A = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "A", ActionEnum.FORWARD);
-        final UrlRule B = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "B", ActionEnum.FORWARD);
-        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "C", ActionEnum.FORWARD);
+        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "[/fooo]"), "C", ActionEnum.FORWARD);
 
         MappingTree<UrlRule> mappingTree = new MappingTree<>();
-        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo"), A);
-        mappingTree.addEntry(UrlMappingParser.parse(null, "[/fooo]"), C);
+        mappingTree.addEntry(A);
+        mappingTree.addEntry(C);
     }
 
     @Test
     public void testChoice() throws Exception {
-        final UrlRule A = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "A", ActionEnum.FORWARD);
-        final UrlRule B = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "B", ActionEnum.FORWARD);
-        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "/fooo"), "C", ActionEnum.FORWARD);
+        final UrlRule A = new UrlRule(UrlMappingParser.parse(null, "/fooo[/bar]"), "C", ActionEnum.FORWARD);
+        final UrlRule C = new UrlRule(UrlMappingParser.parse(null, "[/a][/b][/c][/d]"), "C", ActionEnum.FORWARD);
 
         MappingTree<UrlRule> mappingTree = new MappingTree<>();
 
-        mappingTree.addEntry(UrlMappingParser.parse(null, "/fooo[/bar]"), C);
+        mappingTree.addEntry(A);
 //        assertEquals("StaticUrlPattern{/fooo}<C>\n" +
 //                "    StaticUrlPattern{/bar}<C>\n", mappingTree.toStringHierarchy());
 
-        mappingTree.addEntry(UrlMappingParser.parse(null, "[/a][/b][/c][/d]"), C);
-        assertEquals(("<C>\n" +
-                "StaticUrlPattern{/fooo}<C>\n" +
-                "    StaticUrlPattern{/bar}<C>\n" +
-                "StaticUrlPattern{/a}<C>\n" +
-                "    StaticUrlPattern{/b}<C>\n" +
-                "        StaticUrlPattern{/c}<C>\n" +
-                "            StaticUrlPattern{/d}<C>\n" +
-                "        StaticUrlPattern{/d}<C>\n" +
-                "    StaticUrlPattern{/c}<C>\n" +
-                "        StaticUrlPattern{/d}<C>\n" +
-                "    StaticUrlPattern{/d}<C>\n" +
-                "StaticUrlPattern{/b}<C>\n" +
-                "    StaticUrlPattern{/c}<C>\n" +
-                "        StaticUrlPattern{/d}<C>\n" +
-                "    StaticUrlPattern{/d}<C>\n" +
-                "StaticUrlPattern{/c}<C>\n" +
-                "    StaticUrlPattern{/d}<C>\n" +
-                        "StaticUrlPattern{/d}<C>\n")
-                        .replace("<C>", "<UrlRule{urlPattern=StaticUrlPattern{/fooo}, internalUrl='C'}>"),
+        mappingTree.addEntry(C);
+        assertEquals("<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "StaticUrlPattern{/fooo}<UrlRule{urlPattern=[StaticUrlPattern{/fooo}, Choice{StaticUrlPattern{/bar}}], internalUrl='C'}>\n" +
+                        "    StaticUrlPattern{/bar}<UrlRule{urlPattern=[StaticUrlPattern{/fooo}, Choice{StaticUrlPattern{/bar}}], internalUrl='C'}>\n" +
+                        "StaticUrlPattern{/a}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "    StaticUrlPattern{/b}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "        StaticUrlPattern{/c}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "            StaticUrlPattern{/d}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "        StaticUrlPattern{/d}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "    StaticUrlPattern{/c}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "        StaticUrlPattern{/d}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "    StaticUrlPattern{/d}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "StaticUrlPattern{/b}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "    StaticUrlPattern{/c}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "        StaticUrlPattern{/d}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "    StaticUrlPattern{/d}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "StaticUrlPattern{/c}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "    StaticUrlPattern{/d}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n" +
+                        "StaticUrlPattern{/d}<UrlRule{urlPattern=[Choice{StaticUrlPattern{/a}}, Choice{StaticUrlPattern{/b}}, Choice{StaticUrlPattern{/c}}, Choice{StaticUrlPattern{/d}}], internalUrl='C'}>\n",
                 mappingTree.toStringHierarchy());
         mappingTree.resolve("asdfas");
     }
