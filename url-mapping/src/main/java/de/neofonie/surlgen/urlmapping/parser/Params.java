@@ -25,11 +25,16 @@
 package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 
 public class Params {
 
+    private static final Logger logger = LoggerFactory.getLogger(Params.class);
     private final Map<String, List<String>> params = new HashMap<>();
 
     public Params() {
@@ -86,5 +91,30 @@ public class Params {
 
     public Params copy() {
         return new Params(this);
+    }
+
+    public String createQueryString() {
+        try {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+                for (String list : entry.getValue()) {
+                    if (stringBuilder.length() > 0) {
+                        stringBuilder.append('&');
+                    } else {
+                        stringBuilder.append('?');
+                    }
+
+                    stringBuilder
+                            .append(URLEncoder.encode(entry.getKey(), "UTF-8"))
+                            .append('=')
+                            .append(URLEncoder.encode(list, "UTF-8"));
+                }
+            }
+
+            return stringBuilder.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("Exception occured - this happens if UTF-8 isnt supported", e);
+        }
+
     }
 }

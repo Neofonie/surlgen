@@ -69,4 +69,16 @@ public class ParamsTest {
         assertEquals("Params{params={A=[12], C=[13]}}", params.copy().add("C", "13").toString());
         assertEquals("Params{params={A=[12]}}", params.toString());
     }
+
+    @Test
+    public void testCreateQueryString() throws Exception {
+        Params params = new Params().add("A", "12");
+
+        assertEquals("?A=12", params.createQueryString());
+        assertEquals("?A=12&C=13", params.add("C", "13").createQueryString());
+        assertEquals("?A=12&A=1&C=13", params.add("A", "1").createQueryString());
+        assertEquals("?a=%C3%B6%C3%BC%26%21%25%2F%26%28%29%21%22%C2%A7%27&A=12&A=1&C=13",
+                params.add("a", "öü&!%/&()!\"§\'").createQueryString());
+
+    }
 }
