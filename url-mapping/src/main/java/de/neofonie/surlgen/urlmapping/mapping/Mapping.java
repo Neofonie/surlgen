@@ -30,4 +30,6 @@ import java.util.Map;
 public interface Mapping {
 
     Collection<Map.Entry<String, String>> getMatches(String string);
+
+    String getValue(String key);
 }

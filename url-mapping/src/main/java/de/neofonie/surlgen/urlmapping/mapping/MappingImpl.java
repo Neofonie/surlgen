@@ -24,6 +24,7 @@
 
 package de.neofonie.surlgen.urlmapping.mapping;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,7 @@ public class MappingImpl implements Mapping {
     private final Map<String, String> map = new HashMap<>();
 
     public MappingImpl(Map<String, String> map) {
+        Preconditions.checkNotNull(map);
         this.map.putAll(map);
         for (Map.Entry<String, String> entry : map.entrySet()) {
             String old = reverseMap.put(entry.getValue(), entry.getKey());
@@ -52,4 +54,8 @@ public class MappingImpl implements Mapping {
         return reverseMap.headMap(string);
     }
 
+    @Override
+    public String getValue(String key) {
+        return map.get(key);
+    }
 }

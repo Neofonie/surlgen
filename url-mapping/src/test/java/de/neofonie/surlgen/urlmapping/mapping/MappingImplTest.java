@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 public class MappingImplTest {
 
     @Test
-    public void testSimple() throws Exception {
+    public void testGetMatchesSimple() throws Exception {
 
         MappingImpl mapping;
 
@@ -57,5 +57,26 @@ public class MappingImplTest {
         assertEquals("[b=4, ba=5]", mapping.getMatches("ba").toString());
         assertEquals("[b=4, bb=6]", mapping.getMatches("bb").toString());
         assertEquals("[]", mapping.getMatches("foobar").toString());
+
+    }
+
+    @Test
+    public void testGetValue() throws Exception {
+
+        Map<String, String> map = new HashMap<>();
+        MappingImpl mapping = new MappingImpl(map);
+        assertEquals(null, mapping.getValue("foobar"));
+
+        map = new HashMap<>();
+        map.put("1", "a");
+        map.put("2", "aa");
+        map.put("3", "ab");
+        map.put("4", "b");
+        map.put("5", "ba");
+        map.put("6", "bb");
+        mapping = new MappingImpl(map);
+        assertEquals(null, mapping.getValue("a"));
+        assertEquals("a", mapping.getValue("1"));
+        assertEquals("ab", mapping.getValue("3"));
     }
 }
