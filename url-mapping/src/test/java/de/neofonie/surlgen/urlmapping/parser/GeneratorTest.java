@@ -24,7 +24,9 @@
 
 package de.neofonie.surlgen.urlmapping.parser;
 
+import de.neofonie.surlgen.urlmapping.generator.Generator;
 import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
+import de.neofonie.surlgen.urlmapping.mapping.MappingConfigTest;
 import de.neofonie.surlgen.urlmapping.mapping.MappingImpl;
 import org.junit.Test;
 
@@ -57,5 +59,19 @@ public class GeneratorTest {
 //        assertEquals(generator, generators.get(2));
 //        assertEquals(generator, generators.get(3));
 //        assertEquals(generator, generators.get(4));
+    }
+
+    @Test
+    public void testGenerateUrl() throws Exception {
+        final MappingConfig mappingConfig = MappingConfigTest.createTestMappingConfig();
+
+        MappingPattern a = new MappingPattern("a", "map1", mappingConfig);
+        MappingPattern b = new MappingPattern("b", "map2", mappingConfig);
+        Generator generator = new Generator(Arrays.asList(a, b));
+
+        assertEquals(null, generator.generateUrl(new Params()));
+        assertEquals(null, generator.generateUrl(new Params().add("a", "1")));
+        assertEquals("foobar", generator.generateUrl(new Params().add("a", "1").add("b", "2")));
+        assertEquals("foobar?b=2", generator.generateUrl(new Params().add("a", "1").add("b", "2").add("b", "2")));
     }
 }

@@ -22,8 +22,10 @@
  * SOFTWARE.
  */
 
-package de.neofonie.surlgen.urlmapping.parser;
+package de.neofonie.surlgen.urlmapping.generator;
 
+import de.neofonie.surlgen.urlmapping.parser.Matcher;
+import de.neofonie.surlgen.urlmapping.parser.Params;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +50,18 @@ public class Generator implements Comparable<Generator> {
         }
     }
 
+    public String generateUrl(Params params) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Matcher matcher : matcherList) {
+            String url = matcher.generateUrl(params);
+            if (url == null) {
+                return null;
+            }
+            stringBuilder.append(url);
+        }
+        return stringBuilder.toString() + params.createQueryString();
+    }
+
     @Override
     public int compareTo(Generator o) {
         int compare = Integer.compare(o.params.size(), params.size());
@@ -64,5 +78,9 @@ public class Generator implements Comparable<Generator> {
                 "matcherList=" + matcherList +
                 ", params=" + params +
                 '}';
+    }
+
+    public boolean containsAllParams(Set<String> paramNames) {
+        return paramNames.containsAll(params);
     }
 }
