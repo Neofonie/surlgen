@@ -26,21 +26,24 @@ package de.neofonie.surlgen.urlmapping.parser;
 
 import com.google.common.base.Preconditions;
 import de.neofonie.surlgen.urlmapping.UrlRule;
+import de.neofonie.surlgen.urlmapping.generator.GeneratorMap;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MappingTree<T extends UrlRule> {
 
     private final List<Node<T>> root = new ArrayList<>();
     private T rootValue;
-    private final Collection<Generator> generators = new TreeSet<>();
+    private final GeneratorMap generatorMap = new GeneratorMap();
 
     public void addEntry(T value) {
         final List<List<Matcher>> completeHierarchy = value.getUrlPattern().getCompleteHierarchy();
         for (List<Matcher> matcherList : completeHierarchy) {
             addEntry(matcherList, value);
-            generators.add(new Generator(matcherList));
+            generatorMap.add(value, matcherList);
         }
     }
 
@@ -103,6 +106,10 @@ public class MappingTree<T extends UrlRule> {
             }
         }
         return null;
+    }
+
+    public String generateUrl(String internalRequestURI, Params params) {
+        return generatorMap.generateUrl(internalRequestURI, params);
     }
 
     private static class Node<T extends UrlRule> {
