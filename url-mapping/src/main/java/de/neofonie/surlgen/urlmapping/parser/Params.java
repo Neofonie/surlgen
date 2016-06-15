@@ -93,6 +93,10 @@ public class Params {
         return new Params(this);
     }
 
+    public static Params parseFromQueryString(String s) {
+        return null;
+    }
+
     public String createQueryString() {
         try {
             StringBuilder stringBuilder = new StringBuilder();
@@ -115,6 +119,23 @@ public class Params {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("Exception occured - this happens if UTF-8 isnt supported", e);
         }
+    }
 
+    public Set<String> keySet() {
+        return Collections.unmodifiableSet(params.keySet());
+    }
+
+    public String removeFirst(String name) {
+
+        List<String> strings = params.get(name);
+        if (strings == null || strings.isEmpty()) {
+            return null;
+        }
+
+        String result = strings.remove(0);
+        if (strings.isEmpty()) {
+            params.remove(name);
+        }
+        return result;
     }
 }

@@ -81,4 +81,20 @@ public class ParamsTest {
                 params.add("a", "öü&!%/&()!\"§\'").createQueryString());
 
     }
+
+    @Test
+    public void testRemoveFirst() throws Exception {
+        Params params = new Params().add("A", "12").add("C", "13").add("A", "1");
+
+        assertEquals("Params{params={A=[12, 1], C=[13]}}", params.toString());
+        assertEquals(null, params.removeFirst("B"));
+        assertEquals("Params{params={A=[12, 1], C=[13]}}", params.toString());
+        assertEquals("12", params.removeFirst("A"));
+        assertEquals("Params{params={A=[1], C=[13]}}", params.toString());
+        assertEquals("13", params.removeFirst("C"));
+        assertEquals("Params{params={A=[1]}}", params.toString());
+        assertEquals("1", params.removeFirst("A"));
+        assertEquals("Params{params={}}", params.toString());
+
+    }
 }
