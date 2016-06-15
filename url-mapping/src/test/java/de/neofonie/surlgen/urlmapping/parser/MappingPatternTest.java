@@ -28,6 +28,7 @@ import de.neofonie.surlgen.urlmapping.ActionEnum;
 import de.neofonie.surlgen.urlmapping.UrlRule;
 import de.neofonie.surlgen.urlmapping.mapping.Mapping;
 import de.neofonie.surlgen.urlmapping.mapping.MappingConfig;
+import de.neofonie.surlgen.urlmapping.mapping.MappingConfigTest;
 import de.neofonie.surlgen.urlmapping.mapping.MappingImpl;
 import org.easymock.EasyMock;
 import org.junit.Test;
@@ -172,5 +173,25 @@ public class MappingPatternTest {
         MappingTree<UrlRule> mappingTree = new MappingTree<>();
         mappingTree.addEntry(urlRule);
         return mappingTree;
+    }
+
+    @Test
+    public void testGenerate() throws Exception {
+        final MappingPattern parse = (MappingPattern) UrlMappingParser.parse(MappingConfigTest.createTestMappingConfig(),
+                "{key1:map1}");
+
+        assertEquals(null, parse.generateUrl(new Params()));
+
+        Params params = new Params().add("key1", "2");
+        assertEquals("bar", parse.generateUrl(params));
+        assertEquals("Params{params={}}", params.toString());
+
+        params = new Params().add("key1", "3");
+        assertEquals("foobar", parse.generateUrl(params));
+        assertEquals("Params{params={}}", params.toString());
+
+        params = new Params().add("key1", "4");
+        assertEquals(null, parse.generateUrl(params));
+        assertEquals("Params{params={}}", params.toString());
     }
 }
