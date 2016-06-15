@@ -59,6 +59,11 @@ class StaticUrlPattern implements UrlPattern, Matcher {
     }
 
     @Override
+    public String generateUrl(Params params) {
+        return string;
+    }
+
+    @Override
     public List<List<Matcher>> getCompleteHierarchy() {
         return Collections.singletonList(Collections.singletonList(this));
     }

@@ -31,4 +31,6 @@ public interface Matcher {
     List<MatcherProcessingCommand> matches(MatcherProcessingCommand matcherProcessingCommand);
 
     String getParam();
+
+    String generateUrl(Params params);
 }

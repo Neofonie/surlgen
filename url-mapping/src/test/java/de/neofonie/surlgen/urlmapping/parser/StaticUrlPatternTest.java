@@ -39,4 +39,10 @@ public class StaticUrlPatternTest {
 //        assertFalse(parse.matches("/foooo"));
 //        assertFalse(parse.matches("/fooO"));
     }
+
+    @Test
+    public void testGenerate() throws Exception {
+        final StaticUrlPattern parse = (StaticUrlPattern) UrlMappingParser.parse(null, "/fooo");
+        assertEquals("/fooo", parse.generateUrl(new Params()));
+    }
 }
