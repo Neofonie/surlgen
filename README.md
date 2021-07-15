@@ -1,5 +1,7 @@
 # Spring Url Generator (surlgen)
 
+## **⚠️ THIS PROJECT IS NOW UNMAINTED AND IN READ-ONLY MODE ⚠️**
+
 ## Usage
 
 ### Create Service-Classes for Spring-RequestMapping Annotation 
